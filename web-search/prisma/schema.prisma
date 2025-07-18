@@ -1,0 +1,42 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model SearchAPIUsage {
+  id             String @id @default(cuid())
+  serpApiCalls   Int
+  tavilyApiCalls Int
+
+  month Int
+  year  Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SearchCache {
+  id     String @id @default(cuid())
+  query  String
+  result Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ScraperCache {
+  id     String @id @default(cuid())
+  url    String
+  result Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
