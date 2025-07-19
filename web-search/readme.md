@@ -64,6 +64,31 @@ This project implements a web search service using Express.js. The service is ca
     curl "http://localhost:<PORT>/?q=example+query"
     ```
 
+    Output schema:
+
+    ```bash
+    {
+        title: string,
+        description: string,
+        results: {
+            title: string,
+            description:string,
+            url: string,
+            scraperResult: {
+                metadata: {
+                    url: string,
+                    title: string,
+                    description: string,
+                    icon: string
+                },
+                title: string,
+                text: string,
+                html: string
+            }
+        }[]
+    }
+    ```
+
 ## Configuration
 
 -   **Constants:** Modify `webSearchConstants.ts` and `scraperConstants.ts` to adjust search limits and cache lifetimes.
