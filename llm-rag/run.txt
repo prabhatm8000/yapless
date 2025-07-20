@@ -1,0 +1,12 @@
+prod
+uvicorn app:app --host 0.0.0.0 --port 80
+uvicorn app:app --port 3002
+
+venv prod
+venv/Scripts/uvicorn.exe app:app --port 3002
+
+dev
+fastapi dev app.py --port 3002
+
+venv dev
+venv/Scripts/fastapi.exe dev app.py --port 3002

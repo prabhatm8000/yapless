@@ -2,7 +2,9 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from utils import envvar
 
 embeddings_model = GoogleGenerativeAIEmbeddings(
-    model="models/embedding-001", google_api_key=envvar.GOOGLE_API_KEY)
+    model="models/embedding-001",
+    google_api_key=envvar.GOOGLE_API_KEY
+)
 
 
 def embed_doc(data: list[str]):

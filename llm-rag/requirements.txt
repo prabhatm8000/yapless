@@ -3,3 +3,6 @@ python-dotenv
 langchain-google-genai
 chromadb
 langchain-chroma
+fastapi[standard]
+langchain 
+langchain-community

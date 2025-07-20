@@ -1,2 +1,2 @@
-CHROMA_PERSIST_DIRECTORY = "../db/chroma_db"
+CHROMA_PERSIST_DIRECTORY = "./db/chroma_db"
 COLLECTION_NAME = "LLM_RAG"
