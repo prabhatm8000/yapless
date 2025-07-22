@@ -1,5 +1,8 @@
+from pprint import pprint
+
 from fastapi import FastAPI, Request
-from model.gemini import ask_gemini_with_custom_prompt, get_search_keywords
+from model.chat_history import ask_with_history, get_recent_chat_messages
+from model.gemini import ask_gemini, get_search_keywords
 from utils.chroma_ops import add_to_chroma
 from utils.type_classes import ContextData
 
@@ -8,42 +11,96 @@ app = FastAPI()
 
 @app.get("/keywords")
 async def keywords(q: str):
-    keywords = get_search_keywords(q)
-    return {"keywords": keywords}
-    # return {"keywords": ['monsoon season', 'green vegetables', 'food safety']}
+    try:
+        if not q:
+            return {"error": "Query is empty", "status": 400, "success": False}
+        keywords = get_search_keywords(q)
+        return {
+            "output": {
+                "keywords": keywords,
+                "query": q
+            },
+            "status": 200,
+            "success": True
+        }
+    except Exception as e:
+        return {"error": str(e), "status": 500, "success": False}
 
 
-@app.post("/llm/context")
-async def chat(
+@app.post("/context-provider")
+async def context(
     request: Request,
 ):
-    query = request.query_params
-    q = query.get("q", "")
-    mode = query.get("mode", "")
-    jsonBody = await request.json()
-    data = jsonBody.get("context", None)
-    if not data:
-        return {"error": "No context provided"}
+    try:
+        jsonBody = await request.json()
+        data = jsonBody.get("context", None)
+        if not data:
+            return {"error": "No context provided"}
 
-    context = [ContextData(**item) for item in data]
+        context = [ContextData(**item) for item in data]
 
-    add_to_chroma(data=context)
-    output = ask_gemini_with_custom_prompt(
-        user_query=q,
-        mode=mode,
-    )
-    return output
+        add_to_chroma(data=context)
+        return {"message": "Context added to Chroma", "status": 200, "success": True}
+    except Exception as e:
+        return {"error": str(e), "status": 500, "success": False}
 
 
-@app.post("/llm/chat")
+@app.get("/chat")
 async def chat(
     request: Request
 ):
-    data = request.query_params
-    q = data.get("q", "")
-    mode = data.get("mode", "")
-    output = ask_gemini_with_custom_prompt(
-        query=q,
-        mode=mode,
-    )
-    return output
+    try:
+        query = dict(request.query_params)
+        user_query = query.get("q", None)
+        mode = query.get("mode", "AUTO")
+        if not user_query:
+            return {"error": "Query is empty", "status": 400, "success": False}
+
+        session_id = query.get("session_id", None)
+        if not session_id:
+            output = ask_gemini(
+                user_query=user_query,
+                mode=mode
+            )
+            return {"output": output, "status": 200, "success": True}
+
+        output = ask_with_history(
+            user_query=user_query,
+            session_id=session_id,
+            mode=mode
+        )
+        return {"output": output, "status": 200, "success": True}
+
+    except Exception as e:
+        return {"error": str(e), "status": 500, "success": False}
+
+
+@app.get("/messages")
+async def messages(
+    request: Request
+):
+    try:
+        query = dict(request.query_params)
+        session_id = query.get("session_id", None)
+        if not session_id:
+            return {"error": "Session ID is required", "status": 400, "success": False}
+
+        skip = int(query.get("skip", 0))
+        limit = int(query.get("limit", 6))
+        messages = get_recent_chat_messages(
+            session_id=session_id,
+            skip=skip,
+            limit=limit
+        )
+        return {
+            "output": {
+                "messages": messages,
+                "session_id": session_id,
+                "skip": skip,
+                "limit": limit
+            },
+            "status": 200,
+            "success": True
+        }
+    except Exception as e:
+        return {"error": str(e), "status": 500, "success": False}

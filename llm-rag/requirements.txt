@@ -6,3 +6,5 @@ langchain-chroma
 fastapi[standard]
 langchain 
 langchain-community
+SQLAlchemy
+uuid

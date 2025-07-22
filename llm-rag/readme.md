@@ -82,3 +82,25 @@ GET /keywords?query=Why does my laptop shut down while gaming?
     -   Respond in-context
 
 ---
+
+## Chat history Implementaion
+
+| Step                | What happens                                                               |
+| ------------------- | -------------------------------------------------------------------------- |
+| Load `chat_history` | Pulls all messages for this session from SQLite                            |
+| Rephrase query      | If it's a follow-up, it rewrites it using `create_history_aware_retriever` |
+| Retrieve context    | Uses Chroma retriever to get top‑K relevant docs                           |
+| Combine prompt      | Passes: `{context}` + `{chat_history}` + `{question}` to Gemini            |
+| LLM answers         | Gemini generates response using all that context                           |
+| Save back to memory | Adds both user & AI message to chat history for next time                  |
+
+---
+
+## Chat flow
+
+| Step                    | Function                    | Purpose                                         |
+| ----------------------- | --------------------------- | ----------------------------------------------- |
+| User starts a new topic | `ask_gemini`                | Controlled prompt generation with optional mode |
+| User asks follow-ups    | `ask_with_history`          | Automatically rephrased + contextual            |
+| Repeats                 | `ask_with_history`          | Keeps context growing and meaningful            |
+| All messages saved      | via `SQLChatMessageHistory` | Persisted per `session_id`                      |

@@ -4,9 +4,39 @@ uvicorn app:app --port 3002
 
 venv prod
 venv/Scripts/uvicorn.exe app:app --port 3002
-
+----
 dev
 fastapi dev app.py --port 3002
 
 venv dev
 venv/Scripts/fastapi.exe dev app.py --port 3002
+----
+install
+venv/Scripts/pip3.11.exe install -r requirements.txt
+
+venv install
+venv/Scripts/pip3.11.exe install -r requirements.txt
+----
+
+
+AIMessage(
+    content='Leafy greens, cruciferous vegetables, sprouts, herbs, mushrooms, peas, corn, brinjal/eggplant and bell peppers should be avoided during monsoon.',
+    additional_kwargs={}, 
+    response_metadata={
+        'prompt_feedback': {
+            'block_reason': 0, 
+            'safety_ratings': []
+        }, 
+        'finish_reason': 'STOP', 
+        'model_name': 
+        'gemini-2.0-flash', 
+        'safety_ratings': []
+    }, 
+    id='run--dc948a85-d1e9-4e5e-a3f3-1ed9d53e74b8-0', 
+    usage_metadata={
+        'input_tokens': 2891, 
+        'output_tokens': 33, 
+        'total_tokens': 2924, 
+        'input_token_details': {'cache_read': 0}
+    }
+)
