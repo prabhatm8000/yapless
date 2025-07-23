@@ -100,8 +100,6 @@ def get_recent_chat_messages(
 
     # Calculate slice range (oldest-to-newest order preserved)
     paginated = history.get_messages(limit=limit, skip=skip)
-    print(f"Total messages in session {session_id}: {paginated}")
-
     return [
         {
             "role": (

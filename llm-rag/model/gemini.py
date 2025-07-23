@@ -72,7 +72,6 @@ def ask_gemini(
     # Save this in memory
     memory.chat_memory.add_user_message(user_query)
     memory.chat_memory.add_ai_message(output)
-
     return {"response": output.content or "", "session_id": session_id}
 
 

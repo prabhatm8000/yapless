@@ -11,19 +11,29 @@ import {
 import logger from "../logger";
 import { cleanText } from "../textProcessing";
 
-export async function scraper(url: string): Promise<ScrapResult | null> {
+export async function scraper(siteMeta: {
+    title?: string;
+    description?: string;
+    url?: string;
+}): Promise<ScrapResult | null> {
+    if (!siteMeta || !siteMeta.url) {
+        logger("[Scraper] No URL provided", { level: "ERROR" });
+        return null;
+    }
     try {
-        const dataFromCache = await getScraperCache(url);
+        const dataFromCache = await getScraperCache(siteMeta.url);
         const flag = checkScraperCacheValidity(dataFromCache?.updatedAt);
         if (dataFromCache && flag) {
             if (dataFromCache.result) {
-                logger(`[Cache] scraping url: ${url}`, { level: "INFO" });
+                logger(`[Cache] scraping url: ${siteMeta.url}`, {
+                    level: "INFO",
+                });
                 const data = dataFromCache.result as any;
                 return data as ScrapResult;
             }
         }
 
-        const res = await axios.get(url, {
+        const res = await axios.get(siteMeta.url, {
             headers: {
                 "User-Agent": "MyRAG-Bot/1.0",
                 Accept: "text/html",
@@ -36,7 +46,7 @@ export async function scraper(url: string): Promise<ScrapResult | null> {
             /<style[^>]*>[\s\S]*?<\/style>/gi,
             ""
         );
-        const dom = new JSDOM(cleanHTML, { url });
+        const dom = new JSDOM(cleanHTML, { url: siteMeta.url });
         const reader = new Readability(dom.window.document);
         const article = reader.parse();
         if (
@@ -50,7 +60,7 @@ export async function scraper(url: string): Promise<ScrapResult | null> {
         const html = cleanText(article.content);
 
         const metadata: ScrapResult["metadata"] = {
-            url,
+            url: siteMeta.url,
             title: null,
             description: null,
             icon: null,
@@ -77,15 +87,30 @@ export async function scraper(url: string): Promise<ScrapResult | null> {
         };
 
         if (dataFromCache) {
-            await updateScraperCache(dataFromCache.id, url, data as any);
+            await updateScraperCache(
+                dataFromCache.id,
+                siteMeta.url,
+                data as any
+            );
         } else {
-            await createScraperCache(url, data as any);
+            await createScraperCache(siteMeta.url, data as any);
         }
 
-        logger(`[Fetch] scraping url: ${url}`, { level: "INFO" });
+        logger(`[Fetch] scraping url: ${siteMeta.url}`, { level: "INFO" });
         return data;
     } catch (error: any) {
-        logger(`[Fetch] scraping url: ${url}`, { level: "ERROR" });
-        return null;
+        logger(`[Fetch] scraping url: ${siteMeta.url}`, { level: "ERROR" });
+        return {
+            metadata: {
+                url: siteMeta.url,
+                title: siteMeta.title,
+                description: siteMeta.description,
+                icon: null,
+            },
+            title: siteMeta.title,
+            text: siteMeta.description || "",
+            html: "",
+            source: "axios",
+        };
     }
 }

@@ -4,6 +4,7 @@ import { APIResponseError } from "../lib/error/apiError";
 import { scraper } from "../lib/scraper/scraper";
 import search from "../lib/search/search";
 import type { ScrapResult } from "../types/scraper";
+import type { SearchResultType } from "../types/search";
 
 const webSearch = asyncWrapper(async (req: Request, res: Response) => {
     const query = req.query?.q || req.body?.q;
@@ -23,43 +24,40 @@ const webSearch = asyncWrapper(async (req: Request, res: Response) => {
             false
         );
     }
+    return res.status(200).json({
+        status: "success",
+        success: true,
+        output: searchResult,
+    });
+});
+
+const scrape = asyncWrapper(async (req: Request, res: Response) => {
+    const searchResult: SearchResultType = req.body;
+    if (!searchResult || !searchResult.results) {
+        throw new APIResponseError(
+            "No search results provided for scraping.",
+            400,
+            false
+        );
+    }
 
     const scrapResult: (ScrapResult | null)[] = await Promise.all(
         searchResult.results.map(async (result) => {
-            const data = await scraper(result.url!);
-            return data; // could be null
+            const data = await scraper(result);
+            return data;
         })
     );
 
-    const data: {
-        title?: string;
-        description?: string;
-        results?: {
-            title?: string;
-            description?: string;
-            url?: string;
-            scraperResult?: ScrapResult | null;
-        }[];
-    } = {
-        title: searchResult.title,
-        description: searchResult.description,
-        results: [],
-    };
-
-    for (let i = 0; i < searchResult.results.length; i++) {
-        data.results?.push({
-            title: searchResult.results[i].title,
-            description: searchResult.results[i].description,
-            url: searchResult.results[i].url,
-            scraperResult: scrapResult[i],
-        });
-    }
-
-    res.status(200).json(data);
+    res.status(200).json({
+        status: "success",
+        success: true,
+        output: scrapResult.filter((result) => result !== null),
+    });
 });
 
 const webSearchController = {
     webSearch,
+    scrape,
 };
 
 export default webSearchController;

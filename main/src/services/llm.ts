@@ -1,7 +1,14 @@
 import axios from "axios";
 import envvars from "../lib/envvars";
-import type { SearchKeywordsResponseType } from "../types/services/llmTypes";
-import type { WebSearchCleanedForLLMType } from "../types/services/websearchTypes";
+import logger from "../lib/logger";
+import type {
+    ChatResponseType,
+    LLMModesType,
+    MessagesResponseType,
+    SearchKeywordsResponseType,
+} from "../types/services/llmTypes";
+import type { ScrapResultResponseType } from "../types/services/websearchTypes";
+
 const getSearchKeywords = async (query: string): Promise<string[]> => {
     try {
         const response = await axios.get(
@@ -9,39 +16,90 @@ const getSearchKeywords = async (query: string): Promise<string[]> => {
         );
 
         const result: SearchKeywordsResponseType =
-            (response.data as SearchKeywordsResponseType) || {
-                keywords: [],
-            };
-        return result.keywords || [];
-    } catch (error) {
-        console.error("Error fetching search keywords:", error);
+            response.data as SearchKeywordsResponseType;
+        return result.output.keywords || [];
+    } catch (error: any) {
+        logger(`[Service: LLM] Error getting keywords: ${error.data}`, {
+            level: "ERROR",
+        });
         return [];
     }
 };
 
 const provideContext = async (
-    context: WebSearchCleanedForLLMType[],
-    query?: string
-): Promise<any> => {
+    data: ScrapResultResponseType["output"]
+): Promise<boolean> => {
     try {
+        const context: {
+            text: string;
+            meta: ScrapResultResponseType["output"][0]["metadata"];
+        }[] = [];
+
+        for (const item of data) {
+            context.push({
+                text: item.text || item.metadata?.description || "",
+                meta: item.metadata || {},
+            });
+        }
+
         const response = await axios.post(
-            `${envvars.LLM_SERVICE_URL}/llm/context?q=${query || ""}`,
+            `${envvars.LLM_SERVICE_URL}/context-provider`,
             { context }
         );
-        return response.data || "";
+        const result = response.data as { success: boolean };
+        return result.success || false;
     } catch (error: any) {
-        console.error(
-            "Error asking LLM:",
-            error.status,
-            error.message,
-            error.data
+        logger(`[Service: LLM] Error providing context: ${error.data}`, {
+            level: "ERROR",
+        });
+        return false;
+    }
+};
+
+const chat = async (
+    q: string,
+    mode: LLMModesType = "AUTO",
+    session_id?: string
+): Promise<ChatResponseType | null> => {
+    try {
+        const response = await axios.get(
+            `${envvars.LLM_SERVICE_URL}/chat?q=${q}&mode=${mode}${
+                session_id ? `&session_id=${session_id}` : ""
+            }`
         );
-        return "";
+        const result = response.data as ChatResponseType;
+        return result;
+    } catch (error: any) {
+        logger(`[Service: LLM] Error in chat: ${error.data}`, {
+            level: "ERROR",
+        });
+        return null;
+    }
+};
+
+const messages = async (
+    session_id: string,
+    skip: number,
+    limit: number
+): Promise<MessagesResponseType | null> => {
+    try {
+        const response = await axios.get(
+            `${envvars.LLM_SERVICE_URL}/messages?session_id=${session_id}&skip=${skip}&limit=${limit}`
+        );
+        const result = response.data as MessagesResponseType;
+        return result;
+    } catch (error: any) {
+        logger(`[Service: LLM] Error providing context: ${error.data}`, {
+            level: "ERROR",
+        });
+        return null;
     }
 };
 
 const llmService = {
     getSearchKeywords,
     provideContext,
+    chat,
+    messages,
 };
 export default llmService;

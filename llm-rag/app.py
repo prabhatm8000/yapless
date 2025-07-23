@@ -1,9 +1,8 @@
-from pprint import pprint
-
 from fastapi import FastAPI, Request
 from model.chat_history import ask_with_history, get_recent_chat_messages
 from model.gemini import ask_gemini, get_search_keywords
 from utils.chroma_ops import add_to_chroma
+from utils.envvar import PORT
 from utils.type_classes import ContextData
 
 app = FastAPI()
@@ -35,7 +34,7 @@ async def context(
         jsonBody = await request.json()
         data = jsonBody.get("context", None)
         if not data:
-            return {"error": "No context provided"}
+            return {"error": "No context provided", "status": 400, "success": False}
 
         context = [ContextData(**item) for item in data]
 
@@ -62,13 +61,12 @@ async def chat(
                 user_query=user_query,
                 mode=mode
             )
-            return {"output": output, "status": 200, "success": True}
-
-        output = ask_with_history(
-            user_query=user_query,
-            session_id=session_id,
-            mode=mode
-        )
+        else:
+            output = ask_with_history(
+                user_query=user_query,
+                session_id=session_id,
+                mode=mode
+            )
         return {"output": output, "status": 200, "success": True}
 
     except Exception as e:
@@ -104,3 +102,13 @@ async def messages(
         }
     except Exception as e:
         return {"error": str(e), "status": 500, "success": False}
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(
+        "app:app",
+        host="0.0.0.0",
+        port=int(PORT),
+        reload=True,
+    )
