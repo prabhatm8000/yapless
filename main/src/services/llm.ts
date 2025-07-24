@@ -1,5 +1,5 @@
 import axios from "axios";
-import envvars from "../lib/envvars";
+import envvars from "../constants/envvars";
 import logger from "../lib/logger";
 import type {
     ChatResponseType,

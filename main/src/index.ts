@@ -1,66 +1,42 @@
-import llmService from "./services/llm";
-import webSearchService from "./services/websearch";
+import cookieParser from "cookie-parser";
+import express, { Express } from "express";
+import { rateLimiter } from "./constants/config";
+import { corsConfig } from "./constants/corsConfig";
+import envvars from "./constants/envVars";
+import { connectToDB } from "./lib/mongodb";
+import router from "./routes/router";
 
-const main = async (query: string) => {
-    try {
-        console.log("\n\nGenerating keywords...");
-        const keywords = await llmService.getSearchKeywords(query);
-        console.log("Keywords:", keywords);
+const app: Express = express();
+const PORT = parseInt(envvars.PORT as string);
 
-        console.log("\n\nSearching web...");
-        const searchResults = await webSearchService.webSearch(keywords);
-        if (!searchResults) {
-            console.error("No search results found.");
-            return;
-        }
-        console.log("Search Results:", searchResults);
+// for prod, ui files will be served by express, so it'll be [same-site]
+if (envvars.NODE_ENV === "dev") {
+    app.use(corsConfig);
 
-        console.log("\n\nScraping...");
-        const scrapeResults = await webSearchService.scrape(
-            searchResults.output
+    // log requests
+    app.use(function (req, res, next) {
+        console.log(
+            `[${req.method}] ${req.originalUrl} - ${new Date().toISOString()}`
         );
-        if (!scrapeResults) {
-            console.error("No results found after scraping.");
-            return;
-        }
-        console.log("Scrape Results:", scrapeResults);
+        next();
+    });
+}
 
-        console.log("\n\nProviding to Context...");
-        const data = await llmService.provideContext(scrapeResults.output);
-        console.log("Context provided to LLM:", data);
+app.use(rateLimiter);
+app.use(express.json());
+app.use(cookieParser());
+app.use(router);
 
-        console.log("\n\nGenerating response...");
-        const response = await llmService.chat(query, "AUTO");
-        console.log("Response:", response);
-
-        if (!response?.output.session_id) {
-            console.error("No session id found in response.");
-            return;
-        }
-
-        console.log("\n\nGenerating more response...");
-        const moreMessages = await llmService.chat(
-            "what are the problem i'll face?",
-            "AUTO",
-            response?.output.session_id
-        );
-        console.log("Messages:", moreMessages);
-
-        console.log("\n\nFetching messages...");
-        const messages = await llmService.messages(
-            response?.output.session_id,
-            0,
-            10
-        );
-        console.log("Messages:", messages);
-    } catch (error: any) {
-        console.error(
-            "An error occurred:",
-            error?.status,
-            error?.message,
-            error?.data
-        );
-    }
-};
-
-main("should I avoid eating green vegetables during monsoon season?");
+app.listen(PORT, "0.0.0.0", () => {
+    connectToDB()
+        .catch((err) => {
+            console.log(err);
+            process.exit(1);
+        })
+        .finally(() => {
+            console.log("Database connected successfully");
+            console.log(
+                `Server is running on ${PORT} in ${envvars.NODE_ENV} mode`
+            );
+        });
+});
