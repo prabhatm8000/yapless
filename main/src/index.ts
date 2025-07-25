@@ -2,7 +2,7 @@ import cookieParser from "cookie-parser";
 import express, { Express } from "express";
 import { rateLimiter } from "./constants/config";
 import { corsConfig } from "./constants/corsConfig";
-import envvars from "./constants/envVars";
+import envvars from "./constants/envvars";
 import { connectToDB } from "./lib/mongodb";
 import router from "./routes/router";
 

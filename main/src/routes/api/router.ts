@@ -23,7 +23,7 @@ apiRouter.get(
 apiRouter.use("/user", usersRouter);
 
 // invalid route
-apiRouter.use("/*", (req: Request, res: Response) => {
+apiRouter.use((req: Request, res: Response) => {
     throw new APIResponseError("Invalid route", 404, false);
 });
 
