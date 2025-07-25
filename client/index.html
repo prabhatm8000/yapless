@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+        <link rel="icon" type="image/svg+xml" href="/logo.svg" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Yapless</title>
         <style>
@@ -19,7 +19,7 @@
                 height: 100vh;
             }
             #loading-svg {
-                animation: loading-svg 2s ease-out infinite;
+                animation: loading-svg 4s linear infinite;
             }
             @keyframes loading-svg {
                 100% {
@@ -47,7 +47,39 @@
     <body
         class="dark:bg-black dark:text-white transition-none duration-300 ease-out"
     >
+        <!-- root component -->
         <div id="root"></div>
+        <!-- for crazy fast loading screen -->
+        <div id="lazy-loading">
+            <div>
+                <svg
+                    width="36px"
+                    height="36px"
+                    id="loading-svg"
+                    fill="currentColor"
+                    viewBox="0 0 32 32"
+                    xmlns="http://www.w3.org/2000/svg"
+                >
+                    <g id="SVGRepo_iconCarrier">
+                        <path
+                            d="M 16 4 C 9.382813 4 4 9.382813 4 16 C 4 22.617188 9.382813 28 16 28 C 22.617188 28 28 22.617188 28 16 C 28 9.382813 22.617188 4 16 4 Z M 16 6 C 21.535156 6 26 10.464844 26 16 C 26 21.535156 21.535156 26 16 26 C 10.464844 26 6 21.535156 6 16 C 6 10.464844 10.464844 6 16 6 Z"
+                        />
+                        <circle cx="16" cy="21" r="3" />
+                    </g>
+                </svg>
+            </div>
+        </div>
+        <!-- for removing the crazy fast loading screen after the page is loaded -->
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const root = document.getElementById("root");
+                const lazyLoading = document.getElementById("lazy-loading");
+                if (root) {
+                    lazyLoading.style.display = "none";
+                }
+            });
+        </script>
+        <!-- main script -->
         <script type="module" src="/src/main.tsx"></script>
     </body>
 </html>

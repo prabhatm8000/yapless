@@ -8,22 +8,17 @@ const LoadingPage = () => {
             <div id="lazy-loading">
                 <div>
                     <svg
+                        width="36px"
+                        height="36px"
                         id="loading-svg"
-                        stroke="currentColor"
-                        fill="none"
-                        strokeWidth="1.5"
-                        viewBox="0 0 24 24"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        height="30"
-                        width="30"
+                        fill="currentColor"
+                        viewBox="0 0 32 32"
                         xmlns="http://www.w3.org/2000/svg"
                     >
-                        <path d="M18 16v.01"></path>
-                        <path d="M6 16v.01"></path>
-                        <path d="M12 5v.01"></path>
-                        <path d="M12 12v.01"></path>
-                        <path d="M12 1a4 4 0 0 1 2.001 7.464l.001 .072a3.998 3.998 0 0 1 1.987 3.758l.22 .128a3.978 3.978 0 0 1 1.591 -.417l.2 -.005a4 4 0 1 1 -3.994 3.77l-.28 -.16c-.522 .25 -1.108 .39 -1.726 .39c-.619 0 -1.205 -.14 -1.728 -.391l-.279 .16l.007 .231a4 4 0 1 1 -2.212 -3.579l.222 -.129a3.998 3.998 0 0 1 1.988 -3.756l.002 -.071a4 4 0 0 1 -1.995 -3.265l-.005 -.2a4 4 0 0 1 4 -4z"></path>
+                        <g id="SVGRepo_iconCarrier">
+                            <path d="M 16 4 C 9.382813 4 4 9.382813 4 16 C 4 22.617188 9.382813 28 16 28 C 22.617188 28 28 22.617188 28 16 C 28 9.382813 22.617188 4 16 4 Z M 16 6 C 21.535156 6 26 10.464844 26 16 C 26 21.535156 21.535156 26 16 26 C 10.464844 26 6 21.535156 6 16 C 6 10.464844 10.464844 6 16 6 Z" />
+                            <circle cx="16" cy="21" r="3" />
+                        </g>
                     </svg>
                 </div>
             </div>
