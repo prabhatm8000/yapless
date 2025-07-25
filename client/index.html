@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Yapless</title>
+        <style>
+            #lazy-loading {
+                position: fixed;
+                z-index: 999;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+            }
+            #loading-svg {
+                animation: loading-svg 2s ease-out infinite;
+            }
+            @keyframes loading-svg {
+                100% {
+                    transform: rotate(1440deg);
+                }
+            }
+            html[data-theme="dark"] body #lazy-loading {
+                background-color: #000;
+                color: #fff;
+            }
+        </style>
+        <script>
+            (() => {
+                const theme =
+                    localStorage?.theme === "dark" ||
+                    (!("theme" in localStorage) &&
+                        window.matchMedia("(prefers-color-scheme: dark)")
+                            .matches)
+                        ? "dark"
+                        : "light";
+                document.documentElement.setAttribute("data-theme", theme);
+            })();
+        </script>
+    </head>
+    <body
+        class="dark:bg-black dark:text-white transition-none duration-300 ease-out"
+    >
+        <div id="root"></div>
+        <script type="module" src="/src/main.tsx"></script>
+    </body>
+</html>
