@@ -6,4 +6,4 @@ export const MAX_MONTHLY_QUERIES_SERP_API = 80;
 // max allowed by tavily, 1000 credits/month, some req takes more credits, so can make around 300 requests/month
 export const MAX_MONTHLY_QUERIES_TAVILY_API = 280;
 
-export const MAX_SEARCH_CACHE_LIFE = 3 * 24 * 60 * 60 * 1000;
+export const MAX_SEARCH_CACHE_LIFE = 10 * 24 * 60 * 60 * 1000;

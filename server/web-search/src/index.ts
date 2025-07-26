@@ -15,6 +15,13 @@ app.get("/websearch", webSearchController.webSearch);
 app.post("/scrape", webSearchController.scrape);
 app.use(apiErrorHandler);
 
+app.use(function (req, res, next) {
+    console.log(
+        `[${req.method}] ${req.originalUrl} - ${new Date().toISOString()}`
+    );
+    next();
+});
+
 app.listen(PORT, () => {
     logger(`> 'Web search' service running on port ${PORT}`);
     console.log(`\n> 'Web search' service running on port ${PORT}\n`);
