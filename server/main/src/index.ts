@@ -34,9 +34,9 @@ app.listen(PORT, "0.0.0.0", () => {
             process.exit(1);
         })
         .finally(() => {
-            console.log("Database connected successfully");
+            console.log("\n> Database connected successfully");
             console.log(
-                `Server is running on ${PORT} in ${envvars.NODE_ENV} mode`
+                `> 'Main' service running on port ${PORT} in ${envvars.NODE_ENV} mode\n`
             );
         });
 });

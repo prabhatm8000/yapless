@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import asyncWrapper from "../lib/asyncWrapper";
 import { removeAuthCookie, setAuthCookie } from "../lib/cookie";
 import { APIResponseError } from "../lib/error/apiError";
-import usersService from "../types/services/userService";
+import usersService from "../services/userService";
 
 const login = asyncWrapper(async (req: Request, res: Response) => {
     const { credential: credentialFromGoogleAuth } = req.body;

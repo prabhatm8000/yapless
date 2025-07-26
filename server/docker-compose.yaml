@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  llm:
+    build: ./llm-rag
+    ports:
+      - "3002:3002"
+
+  web-search:
+    build: ./web-search
+    ports:
+      - "3001:3001"
+    depends_on:
+      - llm
+
+  main:
+    build: ./main
+    ports:
+      - "5000:5000"
+    depends_on:
+      - web-search
+      - llm

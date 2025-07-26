@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
-import envvars from "../../constants/envvars";
-import { APIResponseError } from "../../lib/error/apiError";
-import oauthClient from "../../lib/oAuthClient";
-import User from "../../models/user";
-import type { IUser, IUsersService } from "../models/user";
+import envvars from "../constants/envvars";
+import { APIResponseError } from "../lib/error/apiError";
+import oauthClient from "../lib/oAuthClient";
+import User from "../models/user";
+import type { IUser, IUsersService } from "../types/models/user";
 
 /**
  * --- local login ---

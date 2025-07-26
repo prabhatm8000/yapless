@@ -1,0 +1,15 @@
+node_modules
+dist
+
+dockerfile
+.dockerignore
+.git
+.gitignore
+.vscode
+.idea
+*.swp
+*.swo
+*.zip
+*.tar
+*.tgz
+*.tsbuildinfo

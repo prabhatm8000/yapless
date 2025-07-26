@@ -1,3 +1,5 @@
+import type { SiteMetadataType } from "./websearchTypes";
+
 export type SearchKeywordsResponseType = {
     output: { keywords: string[]; q: string };
     status: number;
@@ -10,6 +12,7 @@ export type ChatResponseType = {
     output: {
         session_id: string;
         response: string;
+        metadata: SiteMetadataType[];
     };
     status: number;
     success: boolean;
