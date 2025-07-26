@@ -1,10 +1,11 @@
-from typing import Any, Dict, Literal
+from typing import Any, Dict, List, Literal
 
 from constants.chat_db_constants import CHAT_DB_PATH
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.history_aware_retriever import \
     create_history_aware_retriever
 from langchain.chains.retrieval import create_retrieval_chain
+from langchain_core.documents import Document
 from langchain_core.messages import AIMessage, HumanMessage
 from model.gemini import get_memory, llm, retriever
 from model.sub_class import TimestampedSQLChatMessageHistory
@@ -70,10 +71,12 @@ def ask_with_history(user_query: str, session_id: str, mode: Literal['YAPLESS', 
         },
     )
 
+    docs: List[Document] = output.get("context", None)
+
     memory.chat_memory.add_user_message(user_query)
     memory.chat_memory.add_ai_message(output.get("answer", "") or "")
 
-    return {"response": output.get("answer", "") or "", "session_id": session_id}
+    return {"response": output.get("answer", "") or "", "session_id": session_id, "metadata": [d.metadata for d in docs] if docs else []}
 
 
 def get_recent_chat_messages(
