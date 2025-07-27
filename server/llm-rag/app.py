@@ -52,6 +52,7 @@ async def chat(
         query = dict(request.query_params)
         user_query = query.get("q", None)
         mode = query.get("mode", "AUTO")
+        use_context = query.get("use_context", False)
         if not user_query:
             return {"error": "Query is empty", "status": 400, "success": False}
 
@@ -59,7 +60,8 @@ async def chat(
         if not session_id:
             output = ask_gemini(
                 user_query=user_query,
-                mode=mode
+                mode=mode,
+                use_context=use_context
             )
         else:
             output = ask_with_history(

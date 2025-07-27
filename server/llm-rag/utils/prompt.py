@@ -12,7 +12,7 @@ PROMPT_INSTRUCTIONS = """
 5. Can anser in full detail if user asks.
 6. Keep answers relevant and concise.
 7. if there is no context, chat history, or the question is not relavant,  respond with your known knowledge.
-8. answer in .md format
+8. answer in markdown format
 
 Example:
 yapless(you): How can I help you?
@@ -66,7 +66,7 @@ Instructions:
 5. Can anser in full detail if user asks.
 6. Keep answers relevant and concise.
 7. if there is no context, chat history, or the question is not relavant,  respond with your known knowledge.
-8. answer in .md format
+8. answer in markdown format
 
 {context}
 

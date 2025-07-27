@@ -40,7 +40,8 @@ def get_memory(session_id: str) -> ConversationBufferMemory:
 def ask_gemini(
     user_query: str,
     mode:  Literal['YAPLESS', 'BRIEF', 'DETAILED', 'AUTO'] = "AUTO",
-    session_id: str | None = None
+    session_id: str | None = None,
+    use_context: bool = False
 ) -> Dict[str, Any]:
     """
     Ask a question using Gemini LLM with a custom prompt.
@@ -62,7 +63,7 @@ def ask_gemini(
     if session_id is None:
         session_id = str(uuid.uuid4())
 
-    docs = retriever.invoke(user_query)
+    docs = retriever.invoke(user_query) if use_context else []
     prompt = build_prompt(docs, user_query, mode=mode)
 
     # Optional: use memory if needed

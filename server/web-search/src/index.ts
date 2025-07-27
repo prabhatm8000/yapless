@@ -11,9 +11,6 @@ const PORT = parseInt(envvars.PORT as string);
 // loggerConfig.fileName = "./logs";
 
 app.use(express.json());
-app.get("/websearch", webSearchController.webSearch);
-app.post("/scrape", webSearchController.scrape);
-app.use(apiErrorHandler);
 
 app.use(function (req, res, next) {
     console.log(
@@ -21,6 +18,10 @@ app.use(function (req, res, next) {
     );
     next();
 });
+
+app.get("/websearch", webSearchController.webSearch);
+app.post("/scrape", webSearchController.scrape);
+app.use(apiErrorHandler);
 
 app.listen(PORT, () => {
     logger(`> 'Web search' service running on port ${PORT}`);
