@@ -59,13 +59,14 @@ const provideContext = async (
 const chat = async (
     q: string,
     mode: LLMModesType = "AUTO",
-    session_id?: string
+    session_id?: string,
+    use_context: boolean = false
 ): Promise<ChatResponseType | null> => {
     try {
         const response = await axios.get(
             `${envvars.LLM_SERVICE_URL}/chat?q=${q}&mode=${mode}${
                 session_id ? `&session_id=${session_id}` : ""
-            }`
+            }${use_context ? `&use_context=${use_context}` : ""}`
         );
         const result = response.data as ChatResponseType;
         return result;

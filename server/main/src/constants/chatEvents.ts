@@ -1,8 +1,6 @@
-import type { ChatResponseType } from "../types/services/llmTypes";
-import type {
-    ScrapResultResponseType,
-    WebSearchResponseType,
-} from "../types/services/websearchTypes";
+import type { IChatProps } from "../types/models/chat";
+import type { IChatHistoryProps } from "../types/models/chatHistory";
+import type { SiteMetadataType } from "../types/services/websearchTypes";
 
 type BaseEventDataType = {
     message?: string;
@@ -15,32 +13,26 @@ export type OtherEventDataType =
           data?: string[];
       }
     | {
-          event: "search-results";
-          data?: WebSearchResponseType;
-      }
-    | {
-          event: "scrape-results";
-          data?: ScrapResultResponseType;
+          event: "search";
+          data?: SiteMetadataType[];
       }
     | {
           event: "context";
-          data?: boolean;
       }
     | {
           event: "response";
-          data?: ChatResponseType;
+          data?: IChatHistoryProps;
       }
     | {
           event: "title";
-          data?: string;
+          data?: IChatProps;
       };
 
 export type EventDataType = BaseEventDataType & OtherEventDataType;
 
 export const events: Record<string, OtherEventDataType["event"]> = {
     GOT_KEYWORDS: "keywords",
-    GOT_SEARCH_RESULTS: "search-results",
-    GOT_SCRAPE_RESULTS: "scrape-results",
+    GOT_SEARCH_RESULTS: "search",
     GOT_CONTEXT: "context",
     GOT_RESPONSE: "response",
     GOT_TITLE: "title",

@@ -19,5 +19,5 @@ export interface IChatService {
         userId: IChatProps["userId"],
         skip: number = 0,
         limit: number = 5
-    ) => Promise<IChat | null>;
+    ) => Promise<IChat[] | null>;
 }

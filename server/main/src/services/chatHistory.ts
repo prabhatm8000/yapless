@@ -17,7 +17,25 @@ const getChatHistoryBySessionId = async (
     skip: number = 0,
     limit: number = 5
 ): Promise<IChatHistory[]> => {
-    return await ChatHistory.find({ userId, sessionId }, {}, { skip, limit });
+    return await ChatHistory.aggregate([
+        {
+            $match: {
+                userId,
+                sessionId,
+            },
+        },
+        {
+            $sort: {
+                createdAt: -1,
+            },
+        },
+        {
+            $skip: skip,
+        },
+        {
+            $limit: limit,
+        },
+    ]);
 };
 
 const chatHistoryService: IChatHistoryService = {

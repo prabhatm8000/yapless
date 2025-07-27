@@ -10,16 +10,20 @@ import webSearchService from "../services/websearch";
 import type { LLMModesType } from "../types/services/llmTypes";
 
 const startChat = asyncWrapper(async (req: Request, res: Response) => {
-    const { q, mode, search, sessionId } = req.body;
+    const { q, mode, search, sessionId = null } = req.body;
     const query = q as string;
     const searchMode: LLMModesType = mode as LLMModesType;
     const searchEnabled: boolean = !!search;
+
+    const userId = req.user!._id!;
 
     if (!query) return res.status(400).end("Missing query parameter `q`");
 
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
+
+    let contextProvidedFlag = false;
 
     // #region search enabled
     if (searchEnabled) {
@@ -33,16 +37,12 @@ const startChat = asyncWrapper(async (req: Request, res: Response) => {
         const keywords = await llmService.getSearchKeywords(query);
         sendEventResponse(res, {
             event: "keywords",
-            status: "COMPLETED",
+            status: "PENDING",
             data: keywords,
+            message: "Searching web...",
         });
 
         // #region search
-        sendEventResponse(res, {
-            event: "search-results",
-            status: "PENDING",
-            message: "Searching web...",
-        });
         const searchResults = await webSearchService.webSearch(keywords);
         if (!searchResults)
             return errorEventResponse(
@@ -50,18 +50,8 @@ const startChat = asyncWrapper(async (req: Request, res: Response) => {
                 events.GOT_SEARCH_RESULTS,
                 "No search results found."
             );
-        sendEventResponse(res, {
-            event: "search-results",
-            status: "COMPLETED",
-            data: searchResults,
-        });
 
         // #region scrape
-        sendEventResponse(res, {
-            event: "scrape-results",
-            status: "PENDING",
-            message: "Scraping...",
-        });
         const scrapeResults = await webSearchService.scrape(
             searchResults.output
         );
@@ -72,23 +62,22 @@ const startChat = asyncWrapper(async (req: Request, res: Response) => {
                 "Scraping failed."
             );
         sendEventResponse(res, {
-            event: "scrape-results",
-            status: "COMPLETED",
-            data: scrapeResults,
+            event: "search",
+            status: "PENDING",
+            data: scrapeResults.output.map((result) => result.metadata),
+            message: "Reading content...",
         });
 
         // #region context
-        sendEventResponse(res, {
-            event: "context",
-            status: "PENDING",
-            message: "Generating context...",
-        });
         const context = await llmService.provideContext(scrapeResults.output);
-        sendEventResponse(res, {
-            event: "context",
-            status: "COMPLETED",
-            data: context,
-        });
+        contextProvidedFlag = context;
+        if (!context) {
+            return errorEventResponse(
+                res,
+                events.GOT_CONTEXT,
+                "Providing context failed."
+            );
+        }
     }
 
     // #region response
@@ -97,56 +86,87 @@ const startChat = asyncWrapper(async (req: Request, res: Response) => {
         status: "PENDING",
         message: "Generating response...",
     });
-    const response = await llmService.chat(query, searchMode, sessionId);
+    const response = await llmService.chat(
+        query,
+        searchMode,
+        sessionId,
+        contextProvidedFlag
+    );
+
     if (!response?.output?.session_id)
         return errorEventResponse(
             res,
             events.GOT_RESPONSE,
             "No session id found."
         );
+
     sendEventResponse(res, {
         event: "response",
         status: "COMPLETED",
-        data: response,
+        data: {
+            sessionId: response.output.session_id,
+            metadata: response.output.metadata,
+            response: response.output.response,
+            prompt: query,
+            userId: userId,
+        },
     });
 
+    // sessionId is not provided on first request
     // #region getting title
-    sendEventResponse(res, {
-        event: "title",
-        status: "PENDING",
-        message: "Generating title...",
-    });
-    const gettingTitle = await llmService.chat(
-        "give a title for this chat session",
-        searchMode,
-        response.output.session_id
-    );
-    if (!gettingTitle?.output?.session_id)
-        return errorEventResponse(
-            res,
-            events.GOT_RESPONSE,
-            "No session id found."
+    let gettingTitle = null;
+    if (!sessionId) {
+        gettingTitle = await llmService.chat(
+            "give a title for this chat session, based on the User Query",
+            searchMode,
+            response.output.session_id
         );
-    sendEventResponse(res, {
-        event: "title",
-        status: "COMPLETED",
-        data: gettingTitle?.output?.response,
-    });
+        if (!gettingTitle?.output?.session_id)
+            return errorEventResponse(
+                res,
+                events.GOT_RESPONSE,
+                "No session id found."
+            );
+        sendEventResponse(res, {
+            event: "title",
+            status: "COMPLETED",
+            data: {
+                title: gettingTitle?.output?.response,
+                userId,
+                sessionId: response.output.session_id,
+            },
+        });
+    }
 
     res.end();
 
     await chatHistoryService.addChatHistory({
         sessionId: response.output.session_id,
-        userId: req.user!._id!,
+        userId: userId,
         metadata: response.output.metadata,
         prompt: query,
         response: response.output.response,
     });
 
-    await chatService.createChat({
-        userId: req.user!._id!,
-        sessionId: response.output.session_id,
-        title: gettingTitle?.output?.response,
+    if (gettingTitle) {
+        await chatService.createChat({
+            userId: userId,
+            sessionId: response.output.session_id,
+            title: gettingTitle?.output?.response,
+        });
+    }
+});
+
+const getChats = asyncWrapper(async (req: Request, res: Response) => {
+    const userId = req.user!._id!;
+    const skip = parseInt(req.query.skip as string) || 0;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    const chats = await chatService.getChats(userId, skip, limit);
+
+    res.status(200).json({
+        success: true,
+        data: chats,
     });
 });
 
@@ -166,23 +186,11 @@ const getChatHistory = asyncWrapper(async (req: Request, res: Response) => {
         skip,
         limit
     );
+
     res.status(200).json({
         success: true,
         messages: "",
-        data: ch,
-    });
-});
-
-const getChats = asyncWrapper(async (req: Request, res: Response) => {
-    const userId = req.user!._id!;
-    const skip = parseInt(req.query.skip as string) || 0;
-    const limit = parseInt(req.query.limit as string) || 10;
-
-    const chats = await chatService.getChats(userId, skip, limit);
-
-    res.status(200).json({
-        success: true,
-        data: chats,
+        data: { messages: ch, sessionId: sessionId },
     });
 });
 

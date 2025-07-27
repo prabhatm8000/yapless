@@ -5,7 +5,7 @@ import type {
 } from "../constants/chatEvents";
 
 export const sendEventResponse = (res: Response, data: EventDataType) => {
-    res.write(`${JSON.stringify(data)}\n\n`);
+    res.write(`${JSON.stringify(data)}`);
 };
 
 export const errorEventResponse = (

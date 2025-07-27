@@ -10,7 +10,24 @@ const getChats = async (
     skip: number = 0,
     limit: number = 5
 ) => {
-    const chat = await Chat.findOne({ userId }, {}, { skip, limit });
+    const chat = await Chat.aggregate([
+        {
+            $match: {
+                userId,
+            },
+        },
+        {
+            $sort: {
+                createdAt: -1,
+            },
+        },
+        {
+            $skip: skip,
+        },
+        {
+            $limit: limit,
+        },
+    ]);
     return chat;
 };
 
