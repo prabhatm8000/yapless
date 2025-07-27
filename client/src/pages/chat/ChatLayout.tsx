@@ -27,7 +27,7 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
                 id="main-screen"
                 className="flex justify-center gap-4 h-full w-full overflow-y-scroll px-4"
             >
-                <div className="w-full max-w-6xl h-full">
+                <div className="w-full max-w-4xl h-full">
                     <div>{children}</div>
                     <SideBarBtn
                         showSideBar={showSideBar}

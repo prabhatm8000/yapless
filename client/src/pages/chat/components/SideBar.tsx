@@ -1,13 +1,23 @@
 import Logo from "@/components/Logo";
 import TitleText from "@/components/TitleText";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import LoadingCircle from "@/components/ui/LoadingCircle";
+import { Separator } from "@/components/ui/separator";
+import { clearStateExceptChatHistory } from "@/redux/reducers/chatHistory";
+import type { AppDispatch } from "@/redux/store";
+import { getChats } from "@/redux/thunks/chatThunk";
+import { Plus } from "lucide-react";
 import { useEffect, useState, type JSX } from "react";
 import { IoIosClose, IoIosSettings } from "react-icons/io";
 import { TbMenu } from "react-icons/tb";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useSearchParams } from "react-router";
 import { Button } from "../../../components/ui/button";
-import type { IUserState } from "../../../redux/reducers/types";
+import type {
+    IChat,
+    IChatState,
+    IUserState,
+} from "../../../redux/reducers/types";
 
 // #region SideBar
 const SideBar = ({
@@ -54,9 +64,16 @@ const tabs: { title: string; value: SideBarTabType; icon: JSX.Element }[] = [
     { title: "Settings", value: "settings", icon: <IoIosSettings /> },
 ];
 const SideBarBody = ({ setShowSideBar }: { setShowSideBar: () => void }) => {
+    const chatState: IChatState = useSelector((state: any) => state.chat);
+    const dispatch = useDispatch<AppDispatch>();
+    const [fetchMore, setFetchMore] = useState<boolean>(true);
+
     const [searchParams, setSearchParams] = useSearchParams();
     const [currentTab, setCurrentTab] = useState<SideBarTabType>(
-        (searchParams.get("tab") as SideBarTabType) || "links"
+        searchParams.get("tab") as SideBarTabType
+    );
+    const [currentChat, setCurrentChat] = useState<string | null>(
+        searchParams.get("sessionId")
     );
     const handleTabChange = (tab: SideBarTabType) => {
         setSearchParams((prev) => {
@@ -66,33 +83,98 @@ const SideBarBody = ({ setShowSideBar }: { setShowSideBar: () => void }) => {
         setShowSideBar();
     };
 
+    const handleChatClick = (ch: IChat) => {
+        if (ch.sessionId === currentChat) return;
+        setSearchParams((prev) => {
+            prev.set("tab", "chat");
+            prev.set("sessionId", ch.sessionId);
+            return prev;
+        });
+        setShowSideBar();
+        dispatch(clearStateExceptChatHistory()); // clear othere states like, hasMore, loading...
+    };
+
     // seting tab
     useEffect(() => {
         let tab = (searchParams.get("tab") as SideBarTabType) || "links";
         setCurrentTab(tab);
     }, [searchParams]);
 
+    useEffect(() => {
+        let sessionId = searchParams.get("sessionId");
+        setCurrentChat(sessionId);
+    });
+
+    // chats
+    useEffect(() => {
+        if (!fetchMore || chatState.loading || !chatState.hasMore) return;
+        setFetchMore(false); // prevent infinite loop
+        dispatch(
+            getChats({
+                skip: chatState.chats.length,
+            })
+        );
+    }, [
+        fetchMore,
+        chatState.chats.length,
+        chatState.hasMore,
+        chatState.loading,
+        dispatch,
+    ]);
+
     return (
         <div className="flex flex-col gap-6">
             <div className="flex flex-col text-muted-foreground font-semibold text-sm">
+                <Button
+                    className={`relative flex items-center justify-start gap-1 px-0 py-1.5 h-fit`}
+                    variant={"ghost"}
+                >
+                    <Plus />
+                    <span>New Chat</span>
+                </Button>
                 {tabs.map((tab, index) => (
                     <Button
                         key={index}
                         onClick={() => handleTabChange(tab.value)}
                         variant="ghost"
-                        className={`relative flex items-center justify-start gap-1 ${
+                        className={`relative flex items-center justify-start gap-1 px-0 py-1.5 h-fit ${
                             currentTab === tab.value
                                 ? "bg-muted-foreground/15 text-foreground"
                                 : ""
                         }`}
                     >
-                        {currentTab === tab.value && (
-                            <span className="bg-muted-foreground h-4 w-1 rounded-full absolute left-0 top-1/2 transform -translate-y-1/2" />
-                        )}
                         {tab.icon}
                         <span>{tab.title}</span>
                     </Button>
                 ))}
+                <Separator orientation="horizontal" className="my-2" />
+                <span className="text-foreground font-semibold text-sm">
+                    Chats
+                </span>
+                {chatState.chats.map((ch, index) => (
+                    <Button
+                        key={index}
+                        onClick={() => handleChatClick(ch)}
+                        variant="ghost"
+                        className={`relative flex items-center justify-start gap-1 px-0 py-1.5 h-fit ${
+                            currentChat === ch.sessionId
+                                ? "bg-muted-foreground/15 text-foreground"
+                                : ""
+                        }`}
+                    >
+                        <span className="truncate">{ch.title}</span>
+                    </Button>
+                ))}
+                {chatState.loading && <LoadingCircle />}
+                {chatState.hasMore && (
+                    <Button
+                        size={"sm"}
+                        variant={"ghost"}
+                        onClick={() => setFetchMore(true)}
+                    >
+                        More
+                    </Button>
+                )}
             </div>
         </div>
     );

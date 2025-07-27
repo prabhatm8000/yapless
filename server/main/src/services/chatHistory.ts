@@ -26,7 +26,7 @@ const getChatHistoryBySessionId = async (
         },
         {
             $sort: {
-                createdAt: -1,
+                createdAt: 1,
             },
         },
         {
