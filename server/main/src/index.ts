@@ -27,7 +27,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(router);
 
-app.listen(PORT, "0.0.0.0", () => {
+app.listen(PORT, () => {
     connectToDB()
         .catch((err) => {
             console.log(err);

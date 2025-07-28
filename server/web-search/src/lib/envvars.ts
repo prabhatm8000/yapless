@@ -5,7 +5,7 @@ dotenv.config({
 });
 
 const envvars = {
-    PORT: process.env.PORT || 3001,
+    PORT: process.env.PORT || 4000,
     SERPAPI_API_KEY: process.env.SERPAPI_API_KEY,
     TAVILY_API_KEY: process.env.TAVILY_API_KEY,
 };
