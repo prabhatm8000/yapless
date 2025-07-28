@@ -1,3 +1,5 @@
+import type { EventDataType } from "@/types/events";
+
 type ApiMessageType = string | { title: string; description: string };
 // #region user
 export type ApiResponseType = {
@@ -39,6 +41,7 @@ export interface IChatHistory {
     metadata: SiteMetadataType[];
     prompt: string;
     response: string;
+    loading?: boolean;
 }
 
 export interface IChatHistoryState {
@@ -46,6 +49,7 @@ export interface IChatHistoryState {
      * sessionId -> messages
      */
     chatHistory: Record<string, IChatHistory[]>;
+    responseEvent: EventDataType[];
     hasMore: boolean;
     loading: boolean;
     error: string | null;

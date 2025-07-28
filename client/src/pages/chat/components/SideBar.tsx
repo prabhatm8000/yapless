@@ -29,7 +29,7 @@ const SideBar = ({
 }) => {
     return (
         <div
-            className={`w-60 h-full backdrop-blur-lg bg-background p-4 flex flex-col justify-between border-r border-r-border ${className}`}
+            className={`w-60 h-full backdrop-blur-lg bg-background py-4 flex flex-col justify-between border-r border-r-border ${className}`}
         >
             <div className="flex flex-col gap-6 relative">
                 <SideBarHeader />
@@ -46,7 +46,7 @@ export default SideBar;
 // #region Header
 export const SideBarHeader = () => {
     return (
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-2 px-4">
             <Link to={"/"}>
                 <TitleText className="text-xl flex gap-2 justify-start items-center">
                     <Logo />
@@ -81,6 +81,16 @@ const SideBarBody = ({ setShowSideBar }: { setShowSideBar: () => void }) => {
             return prev;
         });
         setShowSideBar();
+    };
+
+    const handleNewChatClick = () => {
+        setSearchParams((prev) => {
+            prev.set("tab", "chat");
+            prev.delete("sessionId");
+            return prev;
+        });
+        setShowSideBar();
+        dispatch(clearStateExceptChatHistory()); // clear othere states like, hasMore, loading...
     };
 
     const handleChatClick = (ch: IChat) => {
@@ -123,11 +133,12 @@ const SideBarBody = ({ setShowSideBar }: { setShowSideBar: () => void }) => {
     ]);
 
     return (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 px-1">
             <div className="flex flex-col text-muted-foreground font-semibold text-sm">
                 <Button
                     className={`relative flex items-center justify-start gap-1 px-0 py-1.5 h-fit`}
                     variant={"ghost"}
+                    onClick={handleNewChatClick}
                 >
                     <Plus />
                     <span>New Chat</span>
@@ -137,7 +148,7 @@ const SideBarBody = ({ setShowSideBar }: { setShowSideBar: () => void }) => {
                         key={index}
                         onClick={() => handleTabChange(tab.value)}
                         variant="ghost"
-                        className={`relative flex items-center justify-start gap-1 px-0 py-1.5 h-fit ${
+                        className={`relative flex items-center justify-start gap-1 px-2 py-1.5 h-fit ${
                             currentTab === tab.value
                                 ? "bg-muted-foreground/15 text-foreground"
                                 : ""
@@ -148,7 +159,7 @@ const SideBarBody = ({ setShowSideBar }: { setShowSideBar: () => void }) => {
                     </Button>
                 ))}
                 <Separator orientation="horizontal" className="my-2" />
-                <span className="text-foreground font-semibold text-sm">
+                <span className="text-foreground font-semibold text-sm px-2">
                     Chats
                 </span>
                 {chatState.chats.map((ch, index) => (
@@ -156,7 +167,7 @@ const SideBarBody = ({ setShowSideBar }: { setShowSideBar: () => void }) => {
                         key={index}
                         onClick={() => handleChatClick(ch)}
                         variant="ghost"
-                        className={`relative flex items-center justify-start gap-1 px-0 py-1.5 h-fit ${
+                        className={`relative flex items-center justify-start gap-1 px-2 py-1.5 h-fit ${
                             currentChat === ch.sessionId
                                 ? "bg-muted-foreground/15 text-foreground"
                                 : ""
@@ -197,7 +208,7 @@ export const SideBarFooter = ({
         setShowSideBar();
     };
     return (
-        <div className="flex items-center justify-between gap-4 absolute bottom-0 my-6">
+        <div className="flex items-center justify-between gap-4 absolute bottom-0 my-6 px-4">
             <div
                 className="flex items-center gap-2 cursor-pointer"
                 onClick={() => handleTabChange("profile")}

@@ -5,9 +5,10 @@ import { Button } from "./ui/button";
 export const handleScrollToTop = () => {
     const container = document.getElementById("main-screen");
     container?.scrollTo({
-        top: window.innerHeight,
+        top: container.scrollHeight,
         behavior: "smooth",
     });
+    console.log(container?.scrollHeight);
 };
 
 /**

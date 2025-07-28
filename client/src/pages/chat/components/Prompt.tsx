@@ -8,10 +8,15 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import LoadingCircle from "@/components/ui/LoadingCircle";
 import { Textarea } from "@/components/ui/textarea";
 import configs from "@/constants/configs";
 import { addChat } from "@/redux/reducers/chat";
-import { addToChatHistory } from "@/redux/reducers/chatHistory";
+import {
+    addResponseEvent,
+    addToChatHistory,
+} from "@/redux/reducers/chatHistory";
+import { type SiteMetadataType } from "@/redux/reducers/types";
 import type { AppDispatch } from "@/redux/store";
 import type { EventDataType } from "@/types/events";
 import { ArrowUp, Search } from "lucide-react";
@@ -25,14 +30,21 @@ type ModeType = "YAPLESS" | "BRIEF" | "DETAILED" | "AUTO";
 const ModeDropDown = ({
     modeSelector,
     setModeSelector,
+    disabled,
 }: {
     modeSelector: ModeType;
     setModeSelector: (m: "YAPLESS" | "BRIEF" | "DETAILED" | "AUTO") => void;
+    disabled?: boolean;
 }) => {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="outline" size={"sm"} className="capitalize">
+                <Button
+                    disabled={disabled}
+                    variant="outline"
+                    size={"sm"}
+                    className="capitalize"
+                >
                     <MdAutoMode />
                     {modeSelector}
                 </Button>
@@ -72,12 +84,15 @@ const ModeDropDown = ({
 const SearchButton = ({
     value,
     toggle,
+    disabled,
 }: {
     value: boolean;
     toggle: () => void;
+    disabled?: boolean;
 }) => {
     return (
         <Button
+            disabled={disabled}
             size={"sm"}
             onClick={toggle}
             variant={"outline"}
@@ -91,12 +106,15 @@ const SearchButton = ({
 
 const Prompt = () => {
     const [modeSelector, setModeSelector] = useState<ModeType>("AUTO");
+    const [loading, setLoading] = useState<boolean>(false);
     const [query, setQuery] = useState<string>("");
     const [search, setSearch] = useState<boolean>(false);
-    const propmtInputRef = useRef<HTMLTextAreaElement>(null);
-    const dispatch = useDispatch<AppDispatch>();
-    const [searchParams, setSearchParams] = useSearchParams();
 
+    const propmtInputRef = useRef<HTMLTextAreaElement>(null);
+
+    const dispatch = useDispatch<AppDispatch>();
+
+    const [searchParams] = useSearchParams();
     const [sessionId, setSessionId] = useState<string | null>(
         searchParams.get("sessionId")
     );
@@ -105,8 +123,6 @@ const Prompt = () => {
         if (sId === sessionId) return;
         setSessionId(sId);
     }, [searchParams, sessionId]);
-
-    const [data, setData] = useState<EventDataType[]>([]);
 
     const handleEvents = (e: EventDataType) => {
         switch (e.event) {
@@ -132,11 +148,30 @@ const Prompt = () => {
         }
     };
 
-    const startChat = async (payload: {
+    const sendPropmt = async (payload: {
         q: string;
         mode: ModeType;
         search: boolean;
     }) => {
+        setLoading(true);
+        // mock or dummy history chat insertion, till the response comes
+        if (sessionId) {
+            dispatch(
+                addToChatHistory({
+                    message: {
+                        prompt: payload.q,
+                        response: "",
+                        sessionId,
+                        metadata: new Array<SiteMetadataType>(0),
+                        userId: "",
+                        loading: true,
+                    },
+                    sessionId,
+                })
+            );
+            setQuery("");
+        }
+
         const base =
             configs.mode === "dev" ? configs.devBaseUrl : configs.serverBaseUrl;
         const response = await fetch(`${base}/chat`, {
@@ -163,26 +198,27 @@ const Prompt = () => {
             // parse SSE-style chunks
             try {
                 const event = JSON.parse(buffer) as EventDataType;
-                setData((p) => [...p, event]);
+                dispatch(addResponseEvent(event));
                 handleEvents(event);
             } catch (error: any) {
                 throw new Error(error);
             }
         }
+        setLoading(false);
     };
 
     useEffect(() => {
-        console.log(data);
-    }, [data]);
-
-    useEffect(() => {
+        if (loading) return;
         const handleKeyDown = (event: KeyboardEvent) => {
             if (
+                !loading &&
+                propmtInputRef.current &&
                 propmtInputRef.current === document.activeElement &&
                 propmtInputRef.current?.value.trim() !== "" &&
-                event.key === "Enter"
+                event.key === "Enter" &&
+                !event.shiftKey
             ) {
-                startChat({
+                sendPropmt({
                     q: query.trim(),
                     mode: modeSelector,
                     search,
@@ -194,15 +230,17 @@ const Prompt = () => {
         return () => {
             document.removeEventListener("keydown", handleKeyDown);
         };
-    }, [modeSelector, search, propmtInputRef, query, dispatch]);
+    }, [modeSelector, search, propmtInputRef, query, dispatch, loading]);
 
     return (
         <Card className="py-4">
             <CardContent className="px-4">
                 <Textarea
+                    autoFocus
+                    disabled={loading}
                     ref={propmtInputRef}
                     className="rounded-none dark:bg-transparent border-none ring-0 shadow-none p-0 w-full resize-none overflow-auto focus-visible:border-none focus-visible:ring-0 hover:outline-none active:outline-none"
-                    placeholder="Ask anything, I'll not yap!"
+                    placeholder="Ask anything, I'll not yap!, (Don't forget it's shift + enter)"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     style={{
@@ -215,14 +253,24 @@ const Prompt = () => {
                         <ModeDropDown
                             setModeSelector={setModeSelector}
                             modeSelector={modeSelector}
+                            disabled={loading}
                         />
                         <SearchButton
                             value={search}
                             toggle={() => setSearch((p) => !p)}
+                            disabled={loading || true}
                         />
                     </div>
-                    <Button size={"icon"} className="rounded-full">
-                        <ArrowUp />
+                    <Button
+                        disabled={loading}
+                        size={"icon"}
+                        className="rounded-full"
+                    >
+                        {loading ? (
+                            <LoadingCircle className="text-background" />
+                        ) : (
+                            <ArrowUp />
+                        )}
                     </Button>
                 </div>
             </CardContent>

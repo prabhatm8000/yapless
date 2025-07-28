@@ -1,3 +1,5 @@
+import type { IChatState } from "@/redux/reducers/types";
+import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router";
 import type { SideBarTabType } from "./components/SideBar";
 import ViewHeader from "./components/ViewHeader";
@@ -7,6 +9,7 @@ import SettingsView from "./views/SettingsView";
 
 const ChatPage = () => {
     const [searchParams, _] = useSearchParams();
+    const chatState: IChatState = useSelector((state: any) => state.chat);
 
     let page: {
         heading: string;
@@ -30,9 +33,14 @@ const ChatPage = () => {
             break;
         case "chat":
         default:
+            const sId = searchParams.get("sessionId");
+            const title = chatState.chats.find(
+                (c) => c.sessionId === sId
+            )?.title;
+            const heading = sId ? title || "Chat" : "New Chat";
             page = {
-                heading: "Chat",
-                subHeading: "Talk to yapless",
+                heading,
+                subHeading: !title ? "Talk to yapless" : "",
                 viewNode: <ChatView />,
             };
             break;

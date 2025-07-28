@@ -4,6 +4,7 @@ import type { ApiResponseType, IChatHistory, IChatHistoryState } from "./types";
 
 const initialState: IChatHistoryState = {
     chatHistory: {},
+    responseEvent: [],
     hasMore: true,
     loading: false,
     error: null,
@@ -21,20 +22,37 @@ const chatHistorySlice = createSlice({
             state.message = null;
         },
         clearStateExceptChatHistory: (state: IChatHistoryState) => {
+            state.responseEvent = [];
             state.hasMore = true;
             state.loading = false;
             state.error = null;
             state.message = null;
         },
+        addResponseEvent: (state, action) => {
+            state.responseEvent = [...state.responseEvent, action.payload];
+        },
         addToChatHistory: (
             state,
             action: { payload: { message: IChatHistory; sessionId: string } }
         ) => {
+            state.responseEvent = [];
             const m = action.payload.message;
             const sId = action.payload.sessionId;
+
+            // removing last mock element with loading = true
+            // add as loader (in Prompt.tsx) while response comes
+            if (
+                state.chatHistory[sId] &&
+                state.chatHistory[sId].length > 0 &&
+                state.chatHistory[sId][state.chatHistory[sId].length - 1]
+                    .loading
+            ) {
+                state.chatHistory[sId].pop();
+            }
+
             state.chatHistory = {
                 ...state.chatHistory,
-                [sId]: [...state.chatHistory[sId], m],
+                [sId]: [...(state.chatHistory[sId] || []), m],
             };
         },
     },
@@ -51,7 +69,7 @@ const chatHistorySlice = createSlice({
             } else {
                 state.chatHistory = {
                     ...state.chatHistory,
-                    [data.sessionId]: data.messages,
+                    [data.sessionId]: data.messages.reverse(),
                 };
             }
             state.loading = false;
@@ -71,6 +89,10 @@ const chatHistorySlice = createSlice({
     },
 });
 
-export const { clearState, clearStateExceptChatHistory, addToChatHistory } =
-    chatHistorySlice.actions;
+export const {
+    clearState,
+    clearStateExceptChatHistory,
+    addResponseEvent,
+    addToChatHistory,
+} = chatHistorySlice.actions;
 export default chatHistorySlice.reducer;
