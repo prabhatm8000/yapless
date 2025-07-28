@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Literal
 
 from constants.chat_db_constants import CHAT_DB_PATH
 from langchain.memory import ConversationBufferMemory
+from langchain_core.messages import AIMessage, HumanMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from model.sub_class import TimestampedSQLChatMessageHistory
 from utils import chroma_ops, envvar, error, text_processing
@@ -64,10 +65,22 @@ def ask_gemini(
         session_id = str(uuid.uuid4())
 
     docs = retriever.invoke(user_query) if use_context else []
-    prompt = build_prompt(docs, user_query, mode=mode)
 
-    # Optional: use memory if needed
     memory = get_memory(session_id)
+    chat_history = memory.load_memory_variables({}).get("chat_history", [])
+    chat_history = [
+        {
+            "role": (
+                "user" if isinstance(msg, HumanMessage)
+                else "assistant" if isinstance(msg, AIMessage)
+                else "system"
+            ),
+            "content": msg.content
+        }
+        for msg in chat_history
+    ]
+
+    prompt = build_prompt(docs, chat_history, user_query, mode=mode)
     output = llm.invoke(prompt)
 
     # Save this in memory
@@ -97,4 +110,5 @@ def get_search_keywords(user_query: str) -> List[str]:
     str_json = output.content
     json_data = text_processing.parse_llm_json_response(str_json)
 
+    return json_data.get("keywords", []) or []
     return json_data.get("keywords", []) or []
