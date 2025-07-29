@@ -20,4 +20,8 @@ export interface IChatService {
         skip: number = 0,
         limit: number = 5
     ) => Promise<IChat[] | null>;
+    getChatBySessionId: (
+        userId: IChatProps["userId"],
+        sessionId: IChatProps["sessionId"]
+    ) => Promise<IChat | null>;
 }

@@ -6,7 +6,7 @@ export type SearchKeywordsResponseType = {
     success: string;
 };
 
-export type LLMModesType = "YAPLESS" | "BRIEF" | "DETAILED" | "AUTO";
+export type LLMModesType = "YAPLESS" | "SARCASTIC" | "DETAILED" | "AUTO";
 
 export type ChatResponseType = {
     output: {

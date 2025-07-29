@@ -31,9 +31,18 @@ const getChats = async (
     return chat;
 };
 
+const getChatBySessionId = async (
+    userId: IChatProps["userId"],
+    sessionId: IChatProps["sessionId"]
+) => {
+    const chat = await Chat.findOne({ userId, sessionId });
+    return chat;
+};
+
 const chatService: IChatService = {
     createChat: createChat,
     getChats: getChats,
+    getChatBySessionId: getChatBySessionId,
 };
 
 export default chatService;

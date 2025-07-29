@@ -27,7 +27,6 @@ const startChat = asyncWrapper(async (req: Request, res: Response) => {
 
     // #region search enabled
     if (searchEnabled) {
-        console.log("search enabled");
         // #region keywords
         sendEventResponse(res, {
             event: "keywords",
@@ -170,6 +169,18 @@ const getChats = asyncWrapper(async (req: Request, res: Response) => {
     });
 });
 
+const getChatBySessionId = asyncWrapper(async (req: Request, res: Response) => {
+    const userId = req.user!._id!;
+    const sessionId = req.params.sessionId as string;
+
+    const chats = await chatService.getChatBySessionId(userId, sessionId);
+
+    res.status(200).json({
+        success: true,
+        data: chats,
+    });
+});
+
 const getChatHistory = asyncWrapper(async (req: Request, res: Response) => {
     const userId = req.user!._id!;
     const sessionId = req.query.sessionId as string;
@@ -206,5 +217,10 @@ const getChatHistory = asyncWrapper(async (req: Request, res: Response) => {
 //     });
 // });
 
-const chatControllers = { startChat, getChatHistory, getChats };
+const chatControllers = {
+    startChat,
+    getChats,
+    getChatBySessionId,
+    getChatHistory,
+};
 export default chatControllers;
