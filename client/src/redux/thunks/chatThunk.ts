@@ -39,3 +39,15 @@ export const getChats = createAsyncThunk(
         }
     }
 );
+
+export const getChatBySessionId = createAsyncThunk(
+    "chat/getBySessionId",
+    async (sessionId: string, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const res = await axiosInstance.get(`/chat/${sessionId}`);
+            return fulfillWithValue(res.data as ApiResponseType);
+        } catch (error: any) {
+            return rejectWithValue(error.response.data as ApiResponseType);
+        }
+    }
+);

@@ -15,7 +15,13 @@ export const chatSlice = createSlice({
     initialState,
     reducers: {
         addChat: (state, action: { payload: IChat }) => {
-            state.chats = [...state.chats, action.payload];
+            // removing last mock element with loading = true
+            // add as loader (in Prompt.tsx) while response comes
+            if (state.chats.length > 0 && !state.chats[0].loading) {
+                state.chats.pop();
+            }
+
+            state.chats = [action.payload, ...state.chats];
         },
         removeChat: (state, action) => {
             state.chats = state.chats.filter(

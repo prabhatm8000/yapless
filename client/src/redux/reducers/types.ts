@@ -75,6 +75,7 @@ export interface IChat {
     userId: string;
     sessionId: string;
     title: string;
+    loading?: boolean;
 }
 
 export interface IChatState {

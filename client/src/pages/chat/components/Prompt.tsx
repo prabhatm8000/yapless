@@ -25,7 +25,7 @@ import { MdAutoMode } from "react-icons/md";
 import { useDispatch } from "react-redux";
 import { useSearchParams } from "react-router";
 
-type ModeType = "YAPLESS" | "BRIEF" | "DETAILED" | "AUTO";
+type ModeType = "YAPLESS" | "SARCASTIC" | "DETAILED" | "AUTO";
 
 const ModeDropDown = ({
     modeSelector,
@@ -33,9 +33,10 @@ const ModeDropDown = ({
     disabled,
 }: {
     modeSelector: ModeType;
-    setModeSelector: (m: "YAPLESS" | "BRIEF" | "DETAILED" | "AUTO") => void;
+    setModeSelector: (m: "YAPLESS" | "SARCASTIC" | "DETAILED" | "AUTO") => void;
     disabled?: boolean;
 }) => {
+    const options = ["AUTO", "SARCASTIC", "DETAILED", "YAPLESS"];
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -52,30 +53,17 @@ const ModeDropDown = ({
             <DropdownMenuContent className="w-28">
                 <DropdownMenuLabel>Mode</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuCheckboxItem
-                    checked={modeSelector === "AUTO"}
-                    onCheckedChange={() => setModeSelector("AUTO")}
-                >
-                    Auto
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem
-                    checked={modeSelector === "BRIEF"}
-                    onCheckedChange={() => setModeSelector("BRIEF")}
-                >
-                    Brief
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem
-                    checked={modeSelector === "DETAILED"}
-                    onCheckedChange={() => setModeSelector("DETAILED")}
-                >
-                    Detailed
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem
-                    checked={modeSelector === "YAPLESS"}
-                    onCheckedChange={() => setModeSelector("YAPLESS")}
-                >
-                    Yapless
-                </DropdownMenuCheckboxItem>
+                {options.map((option) => (
+                    <DropdownMenuCheckboxItem
+                        key={option}
+                        checked={modeSelector === option}
+                        onCheckedChange={() =>
+                            setModeSelector(option as ModeType)
+                        }
+                    >
+                        {option}
+                    </DropdownMenuCheckboxItem>
+                ))}
             </DropdownMenuContent>
         </DropdownMenu>
     );
@@ -114,7 +102,7 @@ const Prompt = () => {
 
     const dispatch = useDispatch<AppDispatch>();
 
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [sessionId, setSessionId] = useState<string | null>(
         searchParams.get("sessionId")
     );
@@ -125,15 +113,22 @@ const Prompt = () => {
     }, [searchParams, sessionId]);
 
     const handleEvents = (e: EventDataType) => {
+        setQuery(""); // reset query on new event
         switch (e.event) {
             case "response":
-                if (e.data)
+                if (e.data) {
+                    const sId = e.data.sessionId;
                     dispatch(
                         addToChatHistory({
                             message: e.data,
-                            sessionId: e.data.sessionId,
+                            sessionId: sId,
                         })
                     );
+                    setSearchParams((p) => {
+                        p.set("sessionId", sId);
+                        return p;
+                    });
+                }
                 break;
             case "title":
                 if (e.data)
@@ -169,7 +164,16 @@ const Prompt = () => {
                     sessionId,
                 })
             );
-            setQuery("");
+        } else {
+            // mock or dummy chat insertion, till the title comes
+            dispatch(
+                addChat({
+                    sessionId: "",
+                    title: "New Chat",
+                    userId: "",
+                    loading: true,
+                })
+            );
         }
 
         const base =
@@ -240,7 +244,7 @@ const Prompt = () => {
                     disabled={loading}
                     ref={propmtInputRef}
                     className="rounded-none dark:bg-transparent border-none ring-0 shadow-none p-0 w-full resize-none overflow-auto focus-visible:border-none focus-visible:ring-0 hover:outline-none active:outline-none"
-                    placeholder="Ask anything, I'll not yap!, (Don't forget it's shift + enter)"
+                    placeholder="Ask anything, I'll not yap!, (Don't forget it's shift + enter for new line)"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     style={{
@@ -258,10 +262,17 @@ const Prompt = () => {
                         <SearchButton
                             value={search}
                             toggle={() => setSearch((p) => !p)}
-                            disabled={loading || true}
+                            disabled={loading}
                         />
                     </div>
                     <Button
+                        onClick={() =>
+                            sendPropmt({
+                                q: query.trim(),
+                                mode: modeSelector,
+                                search,
+                            })
+                        }
                         disabled={loading}
                         size={"icon"}
                         className="rounded-full"

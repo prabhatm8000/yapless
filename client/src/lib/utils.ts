@@ -14,6 +14,7 @@ export function copyToClipboard(text: string): void {
 }
 
 export function readAloud(text: string): void {
+    if (!window.speechSynthesis.pending) window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     window.speechSynthesis.speak(utterance);
 }

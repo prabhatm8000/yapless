@@ -122,6 +122,7 @@ const SideBarBody = ({ setShowSideBar }: { setShowSideBar: () => void }) => {
         dispatch(
             getChats({
                 skip: chatState.chats.length,
+                limit: 10,
             })
         );
     }, [
@@ -150,7 +151,7 @@ const SideBarBody = ({ setShowSideBar }: { setShowSideBar: () => void }) => {
                         variant="ghost"
                         className={`relative flex items-center justify-start gap-1 px-2 py-1.5 h-fit ${
                             currentTab === tab.value
-                                ? "bg-muted-foreground/15 text-foreground"
+                                ? "bg-muted-foreground/10 text-foreground"
                                 : ""
                         }`}
                     >
@@ -162,30 +163,32 @@ const SideBarBody = ({ setShowSideBar }: { setShowSideBar: () => void }) => {
                 <span className="text-foreground font-semibold text-sm px-2">
                     Chats
                 </span>
-                {chatState.chats.map((ch, index) => (
-                    <Button
-                        key={index}
-                        onClick={() => handleChatClick(ch)}
-                        variant="ghost"
-                        className={`relative flex items-center justify-start gap-1 px-2 py-1.5 h-fit ${
-                            currentChat === ch.sessionId
-                                ? "bg-muted-foreground/15 text-foreground"
-                                : ""
-                        }`}
-                    >
-                        <span className="truncate">{ch.title}</span>
-                    </Button>
-                ))}
-                {chatState.loading && <LoadingCircle />}
-                {chatState.hasMore && (
-                    <Button
-                        size={"sm"}
-                        variant={"ghost"}
-                        onClick={() => setFetchMore(true)}
-                    >
-                        More
-                    </Button>
-                )}
+                <div className="flex flex-col max-h-[calc(100vh-280px)] overflow-y-auto">
+                    {chatState.chats.map((ch, index) => (
+                        <Button
+                            key={index}
+                            onClick={() => handleChatClick(ch)}
+                            variant="ghost"
+                            className={`relative flex items-center justify-start gap-1 px-2 py-1.5 h-fit ${
+                                currentChat === ch.sessionId
+                                    ? "bg-muted-foreground/10 text-foreground"
+                                    : ""
+                            }`}
+                        >
+                            <span className="truncate">{ch.title}</span>
+                        </Button>
+                    ))}
+                    {chatState.loading && <LoadingCircle />}
+                    {chatState.hasMore && (
+                        <Button
+                            size={"sm"}
+                            variant={"ghost"}
+                            onClick={() => setFetchMore(true)}
+                        >
+                            More
+                        </Button>
+                    )}
+                </div>
             </div>
         </div>
     );

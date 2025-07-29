@@ -1,19 +1,17 @@
-import Logo from "@/components/Logo";
 import ScrollToBottomBtn, {
-    handleScrollToTop,
+    handleScrollToBottom,
 } from "@/components/ScrollToBottomBtn";
 import type { IChatHistoryState } from "@/redux/reducers/types";
 import type { AppDispatch } from "@/redux/store";
 import { getChatHistory } from "@/redux/thunks/chatThunk";
 import "highlight.js/styles/github.css";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "react-router";
 import ChatPromptResponseRenderer from "../components/ChatPromptResponseRenderer";
 import Prompt from "../components/Prompt";
 
 const ChatView = () => {
-    const contentAreaRef = useRef<HTMLDivElement>(null);
     const [searchParams] = useSearchParams();
 
     const chatHistoryState: IChatHistoryState = useSelector(
@@ -33,44 +31,70 @@ const ChatView = () => {
 
     const dispatch = useDispatch<AppDispatch>();
 
+    const len =
+        (sessionId ? chatHistoryState.chatHistory[sessionId] : [])?.length || 0;
     useEffect(() => {
-        if (!sessionId || !fetchMore || !chatHistoryState.hasMore) return;
+        if (
+            !sessionId ||
+            !fetchMore ||
+            chatHistoryState.loading ||
+            !chatHistoryState.hasMore
+        )
+            return;
         setFetchMore(false);
         dispatch(
             getChatHistory({
                 sessionId,
-                skip: chatHistoryState.chatHistory[sessionId]?.length || 0,
+                skip: len,
             })
-        );
+        ).then(() => {
+            if (len === 0) handleScrollToBottom("instant"); // initial scroll
+        });
     }, [
-        chatHistoryState.hasMore,
-        chatHistoryState.chatHistory,
         sessionId,
+        fetchMore,
+        chatHistoryState.loading,
+        chatHistoryState.hasMore,
+        len,
         dispatch,
     ]);
 
     useEffect(() => {
+        const container = document.getElementById("main-screen");
+        if (!container) return;
+        const handleScroll = () => {
+            if (
+                container.scrollTop <= 500 &&
+                len > 0 &&
+                !fetchMore &&
+                !chatHistoryState.loading
+            ) {
+                setFetchMore(true);
+            }
+        };
+        container.addEventListener("scroll", handleScroll);
+        return () => {
+            container.removeEventListener("scroll", handleScroll);
+        };
+    }, [len, fetchMore, chatHistoryState.loading]);
+
+    useEffect(() => {
+        if (!sessionId) return;
         const timer = setTimeout(() => {
-            handleScrollToTop();
+            handleScrollToBottom();
         }, 50);
 
         return () => {
             clearTimeout(timer);
         };
-    }, [handleScrollToTop, sessionId, chatHistoryState.chatHistory]);
+    }, [handleScrollToBottom, sessionId, chatHistoryState.responseEvent]);
     return (
-        <div
-            ref={contentAreaRef}
-            className="pt-[150px] md:pt-[110px] grid grid-cols-1 grid-rows-[1fr_auto] gap-2 h-dvh"
-        >
+        <div className="mt-[150px] md:mt-[120px] grid grid-cols-1 grid-rows-[1fr_auto] gap-2 h-dvh">
             <div className="h-full">
-                {sessionId ? (
-                    <ChatPromptResponseRenderer sessionId={sessionId} />
-                ) : (
-                    <div className="h-full w-full flex items-center justify-center">
-                        <Logo size={"70px"} />
-                    </div>
-                )}
+                <ChatPromptResponseRenderer
+                    sessionId={sessionId}
+                    topMessageRef={null}
+                />
             </div>
             <div className="sticky bottom-0 z-10">
                 <div className="absolute bottom-full right-0 z-10">

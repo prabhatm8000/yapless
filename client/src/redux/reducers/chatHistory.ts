@@ -44,16 +44,15 @@ const chatHistorySlice = createSlice({
             if (
                 state.chatHistory[sId] &&
                 state.chatHistory[sId].length > 0 &&
-                state.chatHistory[sId][state.chatHistory[sId].length - 1]
-                    .loading
+                state.chatHistory[sId][0].loading
             ) {
-                state.chatHistory[sId].pop();
+                state.chatHistory[sId][0] = m;
+            } else {
+                state.chatHistory = {
+                    ...state.chatHistory,
+                    [sId]: [m, ...(state.chatHistory[sId] || [])],
+                };
             }
-
-            state.chatHistory = {
-                ...state.chatHistory,
-                [sId]: [...(state.chatHistory[sId] || []), m],
-            };
         },
     },
     extraReducers: (builder) => {
@@ -64,12 +63,15 @@ const chatHistorySlice = createSlice({
                 sessionId: string;
             };
 
-            if (data.messages.length === 0) {
+            if (data.messages?.length === 0) {
                 state.hasMore = false;
             } else {
                 state.chatHistory = {
                     ...state.chatHistory,
-                    [data.sessionId]: data.messages.reverse(),
+                    [data.sessionId]: [
+                        ...(state.chatHistory[data.sessionId] || []),
+                        ...data.messages,
+                    ],
                 };
             }
             state.loading = false;

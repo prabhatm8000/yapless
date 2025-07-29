@@ -2,13 +2,12 @@ import { ArrowDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 
-export const handleScrollToTop = () => {
+export const handleScrollToBottom = (behavior: ScrollBehavior = "smooth") => {
     const container = document.getElementById("main-screen");
     container?.scrollTo({
         top: container.scrollHeight,
-        behavior: "smooth",
+        behavior: behavior,
     });
-    console.log(container?.scrollHeight);
 };
 
 /**
@@ -42,7 +41,7 @@ const ScrollToBottomBtn = () => {
             className={`text-2xl px-2 py-4 rounded-full transform ${
                 showBtn ? "rotate-0 scale-100" : "rotate-180 scale-0"
             } transition-all duration-300 ease-out`}
-            onClick={handleScrollToTop}
+            onClick={() => handleScrollToBottom()}
             variant="outline"
             size={"icon"}
             aria-label="Scroll to top"
