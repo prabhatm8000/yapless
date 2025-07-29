@@ -6,7 +6,7 @@ This project implements a web search service using Express.js. The service is ca
 
 -   **Web Search:** Leverages various APIs like SerpApi and Tavily for web searching.
 -   **Scraping:** Utilizes the Mozilla Readability and jsdom libraries to extract readable content from web pages.
--   **Mode-Based Prompting:** Supports different response modes (brief, detailed) based on user input.
+-   **Mode-Based Prompting:** Supports different response modes ("AUTO", "SARCASTIC", "DETAILED", "YAPLESS") based on user input.
 -   **Caching:** Implements caching for search and scraper results to optimize performance and reduce redundant API calls.
 -   **API Error Handling:** Centralized error handling for API requests.
 

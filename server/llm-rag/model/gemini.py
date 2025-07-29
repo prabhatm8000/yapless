@@ -40,7 +40,7 @@ def get_memory(session_id: str) -> ConversationBufferMemory:
 
 def ask_gemini(
     user_query: str,
-    mode:  Literal['YAPLESS', 'BRIEF', 'DETAILED', 'AUTO'] = "AUTO",
+    mode:  Literal['YAPLESS', 'SARCASTIC', 'DETAILED', 'AUTO'] = "AUTO",
     session_id: str | None = None,
     use_context: bool = False
 ) -> Dict[str, Any]:
@@ -49,7 +49,7 @@ def ask_gemini(
 
     Args:
         user_query (str): The user's question.
-        mode (YaplessMode): The mode of the Yapless application. "YAPLESS", "BRIEF", "DETAILED", or "AUTO".
+        mode (YaplessMode): The mode of the Yapless application. "YAPLESS", "SARCASTIC", "DETAILED", or "AUTO".
         session_id (str | None): Unique chat session ID for memory. If None, a new ID is generated.
 
     Returns:

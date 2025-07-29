@@ -8,6 +8,17 @@ from utils.type_classes import ContextData
 app = FastAPI()
 
 
+@app.get("/")
+async def test():
+    return {
+        "output": {
+            "message": "Welcome to the API!",
+        },
+        "status": 200,
+        "success": True
+    }
+
+
 @app.get("/keywords")
 async def keywords(q: str):
     try:
