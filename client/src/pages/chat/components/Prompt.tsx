@@ -164,16 +164,6 @@ const Prompt = () => {
                     sessionId,
                 })
             );
-        } else {
-            // mock or dummy chat insertion, till the title comes
-            dispatch(
-                addChat({
-                    sessionId: "",
-                    title: "New Chat",
-                    userId: "",
-                    loading: true,
-                })
-            );
         }
 
         const base =

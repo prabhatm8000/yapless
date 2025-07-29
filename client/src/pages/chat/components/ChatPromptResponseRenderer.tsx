@@ -23,10 +23,10 @@ const ChatPromptResponseRenderer = ({
         (state: any) => state.chatHistory
     );
     return (
-        <div className="py-4 relative h-full flex flex-col-reverse gap-4">
+        <>
             {chatHistoryState.loading && <LoadingCircle />}
             {sessionId ? (
-                <>
+                <div className="py-4 relative h-full flex flex-col-reverse gap-4">
                     {chatHistoryState.chatHistory[sessionId] &&
                         chatHistoryState.chatHistory[sessionId].map((ch, i) => (
                             <div key={i}>
@@ -34,11 +34,13 @@ const ChatPromptResponseRenderer = ({
                                     className="flex flex-col gap-2 items-end"
                                     ref={i === 0 ? topMessageRef : null}
                                 >
+                                    {/* prompt */}
                                     <Card className="py-2 w-fit max-w-2xl">
                                         <CardContent className="px-4">
                                             <span>{ch.prompt}</span>
                                         </CardContent>
                                     </Card>
+                                    {/* prompt options */}
                                     <div className="flex items-center justify-end gap-2">
                                         <span
                                             className="cursor-pointer"
@@ -55,9 +57,11 @@ const ChatPromptResponseRenderer = ({
                                             <Volume2 size={16} />
                                         </span>
                                     </div>
+                                    {/* response */}
                                     <div className="w-full flex flex-col gap-4">
                                         {ch.loading ? (
                                             <>
+                                                {/* response events */}
                                                 {chatHistoryState.responseEvent.map(
                                                     (event, i) => (
                                                         <EventRenderer
@@ -79,6 +83,7 @@ const ChatPromptResponseRenderer = ({
                                                 >
                                                     {ch.response}
                                                 </ReactMarkdown>
+                                                {/* prompt options */}
                                                 <div className="flex items-center gap-2 mt-4">
                                                     <span
                                                         className="cursor-pointer"
@@ -111,18 +116,18 @@ const ChatPromptResponseRenderer = ({
                                 />
                             </div>
                         ))}
-                </>
+                </div>
             ) : (
-                <>
-                    <div className="w-full h-3/3 flex items-center justify-center">
+                <div className="py-4 relative h-full flex flex-col gap-4">
+                    <div className="absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%] -z-10 opacity-60 w-full h-3/3 flex items-center justify-center">
                         <Logo size={"70px"} />
                     </div>
                     {chatHistoryState.responseEvent.map((event, i) => (
                         <EventRenderer key={i} event={event} />
                     ))}
-                </>
+                </div>
             )}
-        </div>
+        </>
     );
 };
 

@@ -9,11 +9,11 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "react-router";
 import ChatPromptResponseRenderer from "../components/ChatPromptResponseRenderer";
+import ChatTitleRenderer from "../components/ChatTitleRenderer";
 import Prompt from "../components/Prompt";
 
 const ChatView = () => {
     const [searchParams] = useSearchParams();
-
     const chatHistoryState: IChatHistoryState = useSelector(
         (state: any) => state.chatHistory
     );
@@ -27,7 +27,7 @@ const ChatView = () => {
         if (sId === sessionId) return;
         setFetchMore(true);
         setSessionId(sId);
-    }, [searchParams, sessionId]);
+    }, [searchParams.get("sessionId"), sessionId]);
 
     const dispatch = useDispatch<AppDispatch>();
 
@@ -89,7 +89,13 @@ const ChatView = () => {
         };
     }, [handleScrollToBottom, sessionId, chatHistoryState.responseEvent]);
     return (
-        <div className="mt-[150px] md:mt-[120px] grid grid-cols-1 grid-rows-[1fr_auto] gap-2 h-dvh">
+        <div className="grid grid-cols-1 grid-rows-[auto_1fr_auto] gap-2 h-dvh">
+            <div className="fixed w-4xl top-0 z-10">
+                <ChatTitleRenderer sessionId={sessionId} />
+            </div>
+            <div className="h-[100px]" />
+            {/* dummy div to handle grid, cause 1'st div is not working in sticky, 
+            /** as fixed it, and to handle rest properly add this */}
             <div className="h-full">
                 <ChatPromptResponseRenderer
                     sessionId={sessionId}
@@ -97,12 +103,12 @@ const ChatView = () => {
                 />
             </div>
             <div className="sticky bottom-0 z-10">
-                <div className="absolute bottom-full right-0 z-10">
+                <div className="absolute bottom-full right-0 m-2 z-10">
                     <ScrollToBottomBtn />
                 </div>
                 <div className="relative z-0">
-                    <div className="absolute z-0 bottom-full left-0 right-0 h-10 bg-gradient-to-t from-background to-transparent pointer-events-none" />
-                    <div className="py-4 bg-background">
+                    <div className="absolute z-0 bottom-full left-0 right-0 h-14 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+                    <div className="pb-4 bg-background">
                         <Prompt />
                     </div>
                 </div>
