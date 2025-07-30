@@ -8,13 +8,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from model.sub_class import TimestampedSQLChatMessageHistory
 from utils import chroma_ops, envvar, error, text_processing
 from utils.gemini import build_keyword_promt, build_prompt
-
-llm = ChatGoogleGenerativeAI(
-    model="gemini-2.0-flash",
-    google_api_key=envvar.GOOGLE_API_KEY,
-)
-
-retriever = chroma_ops.chroma_retriever()
+from utils.model_usage import get_available_model, update_model_usage
 
 
 def get_memory(session_id: str) -> ConversationBufferMemory:
@@ -64,8 +58,7 @@ def ask_gemini(
     if session_id is None:
         session_id = str(uuid.uuid4())
 
-    docs = retriever.invoke(user_query) if use_context else []
-
+    docs = chroma_ops.chroma_retriever().invoke(user_query) if use_context else []
     memory = get_memory(session_id)
     chat_history = memory.load_memory_variables({}).get("chat_history", [])
     chat_history = [
@@ -81,7 +74,14 @@ def ask_gemini(
     ]
 
     prompt = build_prompt(docs, chat_history, user_query, mode=mode)
+
+    model = get_available_model()
+    llm = ChatGoogleGenerativeAI(
+        model=model,
+        google_api_key=envvar.GOOGLE_API_KEY,
+    )
     output = llm.invoke(prompt)
+    update_model_usage(model)
 
     # Save this in memory
     memory.chat_memory.add_user_message(user_query)
@@ -105,10 +105,16 @@ def get_search_keywords(user_query: str) -> List[str]:
         )
 
     prompt = build_keyword_promt(user_query=user_query)
+
+    model = get_available_model()
+    llm = ChatGoogleGenerativeAI(
+        model=model,
+        google_api_key=envvar.GOOGLE_API_KEY,
+    )
     output = llm.invoke(prompt)
+    update_model_usage(model)
 
     str_json = output.content
     json_data = text_processing.parse_llm_json_response(str_json)
 
-    return json_data.get("keywords", []) or []
     return json_data.get("keywords", []) or []

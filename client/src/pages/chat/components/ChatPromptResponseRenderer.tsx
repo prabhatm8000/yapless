@@ -23,10 +23,10 @@ const ChatPromptResponseRenderer = ({
         (state: any) => state.chatHistory
     );
     return (
-        <>
+        <div className="py-4 relative h-full flex flex-col-reverse gap-4">
             {chatHistoryState.loading && <LoadingCircle />}
             {sessionId ? (
-                <div className="py-4 relative h-full flex flex-col-reverse gap-4">
+                <>
                     {chatHistoryState.chatHistory[sessionId] &&
                         chatHistoryState.chatHistory[sessionId].map((ch, i) => (
                             <div key={i}>
@@ -66,6 +66,13 @@ const ChatPromptResponseRenderer = ({
                                                     (event, i) => (
                                                         <EventRenderer
                                                             key={i}
+                                                            showLoading={
+                                                                i ===
+                                                                chatHistoryState
+                                                                    .responseEvent
+                                                                    .length -
+                                                                    1
+                                                            }
                                                             event={event}
                                                         />
                                                     )
@@ -116,18 +123,24 @@ const ChatPromptResponseRenderer = ({
                                 />
                             </div>
                         ))}
-                </div>
+                </>
             ) : (
-                <div className="py-4 relative h-full flex flex-col gap-4">
+                <>
                     <div className="absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%] -z-10 opacity-60 w-full h-3/3 flex items-center justify-center">
                         <Logo size={"70px"} />
                     </div>
                     {chatHistoryState.responseEvent.map((event, i) => (
-                        <EventRenderer key={i} event={event} />
+                        <EventRenderer
+                            key={i}
+                            showLoading={
+                                i === chatHistoryState.responseEvent.length - 1
+                            }
+                            event={event}
+                        />
                     ))}
-                </div>
+                </>
             )}
-        </>
+        </div>
     );
 };
 

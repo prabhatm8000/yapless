@@ -34,6 +34,7 @@ async def keywords(q: str):
             "success": True
         }
     except Exception as e:
+        print(e)
         return {"error": str(e), "status": 500, "success": False}
 
 

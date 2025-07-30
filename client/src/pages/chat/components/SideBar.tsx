@@ -122,7 +122,7 @@ const SideBarBody = ({ setShowSideBar }: { setShowSideBar: () => void }) => {
         dispatch(
             getChats({
                 skip: chatState.chats.length,
-                limit: 10,
+                limit: 20,
             })
         );
     }, [
@@ -163,7 +163,12 @@ const SideBarBody = ({ setShowSideBar }: { setShowSideBar: () => void }) => {
                 <span className="text-foreground font-semibold text-sm px-2">
                     Chats
                 </span>
-                <div className="flex flex-col max-h-[calc(100vh-280px)] overflow-y-auto">
+                <div
+                    className="flex flex-col max-h-[calc(100vh-280px)] overflow-y-auto"
+                    style={{
+                        scrollbarWidth: "none",
+                    }}
+                >
                     {chatState.chats.map((ch, index) => (
                         <Button
                             key={index}

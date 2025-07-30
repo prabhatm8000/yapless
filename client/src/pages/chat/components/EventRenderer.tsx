@@ -3,7 +3,13 @@ import LoadingBubble from "@/components/ui/LoadingBubble";
 import type { EventDataType } from "@/types/events";
 import { Search } from "lucide-react";
 
-const EventRenderer = ({ event }: { event?: EventDataType }) => {
+const EventRenderer = ({
+    showLoading,
+    event,
+}: {
+    showLoading: boolean;
+    event?: EventDataType;
+}) => {
     if (!event) return <></>;
     let comp = <></>;
     switch (event.event) {
@@ -51,9 +57,10 @@ const EventRenderer = ({ event }: { event?: EventDataType }) => {
     return (
         <div className="flex flex-col justify-center gap-2">
             <h6 className="text-muted-foreground">
-                {event.status === "PENDING" && (
-                    <LoadingBubble className="mr-4" />
-                )}
+                <LoadingBubble
+                    className="mr-4"
+                    showAnimation={event.status === "PENDING" && showLoading}
+                />
                 {event.message}
             </h6>
             <div>{comp}</div>
