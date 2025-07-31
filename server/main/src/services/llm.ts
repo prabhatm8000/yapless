@@ -9,10 +9,15 @@ import type {
 } from "../types/services/llmTypes";
 import type { ScrapResultResponseType } from "../types/services/websearchTypes";
 
-const getSearchKeywords = async (query: string): Promise<string[]> => {
+const getSearchKeywords = async (
+    query: string,
+    session_id?: string
+): Promise<string[]> => {
     try {
         const response = await axios.get(
-            `${envvars.LLM_SERVICE_URL}/keywords?q=${query}`
+            `${envvars.LLM_SERVICE_URL}/keywords?q=${query}${
+                session_id ? `&session_id=${session_id}` : ""
+            }`
         );
 
         const result: SearchKeywordsResponseType =
@@ -60,13 +65,16 @@ const chat = async (
     q: string,
     mode: LLMModesType = "AUTO",
     session_id?: string,
+    search_id?: string | null,
     use_context: boolean = false
 ): Promise<ChatResponseType | null> => {
     try {
         const response = await axios.get(
             `${envvars.LLM_SERVICE_URL}/chat?q=${q}&mode=${mode}${
                 session_id ? `&session_id=${session_id}` : ""
-            }${use_context ? `&use_context=${use_context}` : ""}`
+            }${use_context ? `&use_context=${use_context}` : ""}${
+                search_id ? `&search_id=${search_id}` : ""
+            }`
         );
         const result = response.data as ChatResponseType;
         return result;

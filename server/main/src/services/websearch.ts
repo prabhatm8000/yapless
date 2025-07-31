@@ -3,18 +3,26 @@ import envvars from "../constants/envvars";
 import logger from "../lib/logger";
 import type {
     ScrapResultResponseType,
+    SearchModesType,
     WebSearchResponseType,
 } from "../types/services/websearchTypes";
 
 const webSearch = async (
-    query: string | string[]
+    query: string | string[],
+    searchMode: SearchModesType
 ): Promise<WebSearchResponseType | null> => {
     if (typeof query !== "string") {
         query = query.join(", ");
     }
     try {
+        let site = "";
+        if (searchMode === "REDDIT") {
+            site = "site:reddit.com";
+        } else if (searchMode === "WIKIPEDIA") {
+            site = "site:wikipedia.org";
+        }
         const response = await axios.get(
-            `${envvars.WEB_SEARCH_SERVICE_URL}/websearch?q=${query}`
+            `${envvars.WEB_SEARCH_SERVICE_URL}/websearch?q=${site} ${query}`
         );
 
         const results: WebSearchResponseType =

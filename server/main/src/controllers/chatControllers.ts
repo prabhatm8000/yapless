@@ -8,12 +8,13 @@ import chatHistoryService from "../services/chatHistory";
 import llmService from "../services/llm";
 import webSearchService from "../services/websearch";
 import type { LLMModesType } from "../types/services/llmTypes";
+import type { SearchModesType } from "../types/services/websearchTypes";
 
 const startChat = asyncWrapper(async (req: Request, res: Response) => {
-    const { q, mode, search, sessionId = null } = req.body;
+    const { q, mode, search_mode, sessionId = null } = req.body;
     const query = q as string;
-    const searchMode: LLMModesType = mode as LLMModesType;
-    const searchEnabled: boolean = !!search;
+    const llmMode: LLMModesType = mode as LLMModesType;
+    const searchMode: SearchModesType = search_mode as SearchModesType;
 
     const userId = req.user!._id!;
 
@@ -24,16 +25,16 @@ const startChat = asyncWrapper(async (req: Request, res: Response) => {
     res.setHeader("Connection", "keep-alive");
 
     let contextProvidedFlag = false;
-
+    let searchId: string | null = null;
     // #region search enabled
-    if (searchEnabled) {
+    if (searchMode) {
         // #region keywords
         sendEventResponse(res, {
             event: "keywords",
             status: "PENDING",
             message: "Generating keywords...",
         });
-        const keywords = await llmService.getSearchKeywords(query);
+        const keywords = await llmService.getSearchKeywords(query, sessionId);
         sendEventResponse(res, {
             event: "keywords",
             status: "PENDING",
@@ -42,7 +43,10 @@ const startChat = asyncWrapper(async (req: Request, res: Response) => {
         });
 
         // #region search
-        const searchResults = await webSearchService.webSearch(keywords);
+        const searchResults = await webSearchService.webSearch(
+            keywords,
+            searchMode
+        );
         if (!searchResults)
             return errorEventResponse(
                 res,
@@ -54,12 +58,14 @@ const startChat = asyncWrapper(async (req: Request, res: Response) => {
         const scrapeResults = await webSearchService.scrape(
             searchResults.output
         );
-        if (!scrapeResults)
+        if (!scrapeResults || scrapeResults?.output?.length === 0)
             return errorEventResponse(
                 res,
                 events.GOT_SCRAPE_RESULTS,
                 "Scraping failed."
             );
+
+        searchId = scrapeResults.output[0].metadata.search_id;
         sendEventResponse(res, {
             event: "search",
             status: "PENDING",
@@ -87,8 +93,9 @@ const startChat = asyncWrapper(async (req: Request, res: Response) => {
     });
     const response = await llmService.chat(
         query,
-        searchMode,
+        llmMode,
         sessionId,
+        searchId,
         contextProvidedFlag
     );
 
@@ -117,7 +124,7 @@ const startChat = asyncWrapper(async (req: Request, res: Response) => {
     if (!sessionId) {
         gettingTitle = await llmService.chat(
             "give a title for this chat session, based on the User Query",
-            searchMode,
+            llmMode,
             response.output.session_id
         );
         if (!gettingTitle?.output?.session_id)

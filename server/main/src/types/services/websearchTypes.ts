@@ -13,11 +13,14 @@ export type WebSearchResponseType = {
     success: string;
 };
 
+export type SearchModesType = "AUTO" | "REDDIT" | "WIKIPEDIA" | null;
+
 export interface SiteMetadataType {
     url: string;
     icon?: string | null;
     title?: string | null;
     description?: string | null;
+    search_id: string;
 }
 
 export type ScrapResultResponseType = {

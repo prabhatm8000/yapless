@@ -1,4 +1,3 @@
-import fs from "fs";
 import type { LoggerOptionsType } from "./type";
 
 /**
@@ -14,38 +13,41 @@ export const loggerConfig: LoggerOptionsType = {
 };
 
 const logger = (message: string, options?: LoggerOptionsType) => {
-    const level = options?.level || loggerConfig.level;
-    const filePath = options?.filePath || loggerConfig.filePath;
-    if (!filePath) {
-        throw new Error("filePath is not set in loggerConfig.");
-    }
+    console.log(`[${options?.level}] - ${message}\n\n`);
+    return;
+    // -------------as of now-----------------------------
+    // const level = options?.level || loggerConfig.level;
+    // const filePath = options?.filePath || loggerConfig.filePath;
+    // if (!filePath) {
+    //     throw new Error("filePath is not set in loggerConfig.");
+    // }
 
-    if (!fs.existsSync(filePath)) {
-        fs.mkdirSync(filePath);
-    }
-    if (!fs.existsSync(`${filePath}/${loggerConfig.fileName}.log`)) {
-        fs.writeFileSync(`${filePath}/${loggerConfig.fileName}.log`, "");
-    }
+    // if (!fs.existsSync(filePath)) {
+    //     fs.mkdirSync(filePath);
+    // }
+    // if (!fs.existsSync(`${filePath}/${loggerConfig.fileName}.log`)) {
+    //     fs.writeFileSync(`${filePath}/${loggerConfig.fileName}.log`, "");
+    // }
 
-    const localtime = new Date();
-    const logtime = `${localtime.getFullYear()}-${(localtime.getMonth() + 1)
-        .toString()
-        .padStart(2, "0")}-${localtime
-        .getDate()
-        .toString()
-        .padStart(2, "0")} ${localtime
-        .getHours()
-        .toString()
-        .padStart(2, "0")}:${localtime
-        .getMinutes()
-        .toString()
-        .padStart(2, "0")}:${localtime
-        .getSeconds()
-        .toString()
-        .padStart(2, "0")}`;
+    // const localtime = new Date();
+    // const logtime = `${localtime.getFullYear()}-${(localtime.getMonth() + 1)
+    //     .toString()
+    //     .padStart(2, "0")}-${localtime
+    //     .getDate()
+    //     .toString()
+    //     .padStart(2, "0")} ${localtime
+    //     .getHours()
+    //     .toString()
+    //     .padStart(2, "0")}:${localtime
+    //     .getMinutes()
+    //     .toString()
+    //     .padStart(2, "0")}:${localtime
+    //     .getSeconds()
+    //     .toString()
+    //     .padStart(2, "0")}`;
 
-    const log = `${logtime} - [${level}] - ${message}\n\n`;
-    fs.appendFileSync(`${filePath}/${loggerConfig.fileName}.log`, log);
+    // const log = `${logtime} - [${level}] - ${message}\n\n`;
+    // fs.appendFileSync(`${filePath}/${loggerConfig.fileName}.log`, log);
 };
 
 export default logger;
