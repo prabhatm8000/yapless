@@ -36,7 +36,8 @@ def ask_gemini(
     user_query: str,
     mode:  Literal['YAPLESS', 'SARCASTIC', 'DETAILED', 'AUTO'] = "AUTO",
     session_id: str | None = None,
-    use_context: bool = False
+    use_context: bool = False,
+    meta_filter: dict = None
 ) -> Dict[str, Any]:
     """
     Ask a question using Gemini LLM with a custom prompt.
@@ -58,7 +59,8 @@ def ask_gemini(
     if session_id is None:
         session_id = str(uuid.uuid4())
 
-    docs = chroma_ops.chroma_retriever().invoke(user_query) if use_context else []
+    docs = chroma_ops.get_relevant_context(
+        query=user_query, filter=meta_filter) if use_context else []
     memory = get_memory(session_id)
     chat_history = memory.load_memory_variables({}).get("chat_history", [])
     chat_history = [
@@ -89,7 +91,7 @@ def ask_gemini(
     return {"response": output.content or "", "session_id": session_id, "metadata": [d.metadata for d in docs]}
 
 
-def get_search_keywords(user_query: str) -> List[str]:
+def get_search_keywords(user_query: str, session_id: str = None) -> List[str]:
     """
     Generate search keywords from a user's query using a specific prompt.
     Args:
@@ -104,7 +106,24 @@ def get_search_keywords(user_query: str) -> List[str]:
             success=False
         )
 
-    prompt = build_keyword_promt(user_query=user_query)
+    chat_history = []
+    if session_id:
+        memory = get_memory(session_id)
+        chat_history = memory.load_memory_variables({}).get("chat_history", [])
+        chat_history = [
+            {
+                "role": (
+                    "user" if isinstance(msg, HumanMessage)
+                    else "assistant" if isinstance(msg, AIMessage)
+                    else "system"
+                ),
+                "content": msg.content
+            }
+            for msg in chat_history
+        ]
+
+    prompt = build_keyword_promt(
+        user_query=user_query, chat_history=chat_history)
 
     model = get_available_model()
     llm = ChatGoogleGenerativeAI(

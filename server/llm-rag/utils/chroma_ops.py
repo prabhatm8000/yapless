@@ -18,7 +18,7 @@ def add_to_chroma(data: list[ContextData]):
     return db
 
 
-def get_relevant_context(query: str, k: int = 5):
+def get_relevant_context(query: str, k: int = 5, filter: dict = None):
     """
     Retrieves the most relevant context from the Chroma database based on a query.
 
@@ -29,7 +29,7 @@ def get_relevant_context(query: str, k: int = 5):
     Returns:
         list[Document]: A list of Document objects that are the most relevant to the query.
     """
-    results = vectorstore.similarity_search(query, k=k)
+    results = vectorstore.similarity_search(query, k=k, filter=filter)
     return results
 
 

@@ -20,11 +20,11 @@ async def test():
 
 
 @app.get("/keywords")
-async def keywords(q: str):
+async def keywords(q: str, session_id: str = None):
     try:
         if not q:
             return {"error": "Query is empty", "status": 400, "success": False}
-        keywords = get_search_keywords(q)
+        keywords = get_search_keywords(q, session_id=session_id)
         return {
             "output": {
                 "keywords": keywords,
@@ -65,6 +65,7 @@ async def chat(
         user_query = query.get("q", None)
         mode = query.get("mode", "AUTO")
         use_context = query.get("use_context", False)
+        search_id = query.get("search_id", None)
         if not user_query:
             return {"error": "Query is empty", "status": 400, "success": False}
 
@@ -73,7 +74,8 @@ async def chat(
             user_query=user_query,
             mode=mode,
             session_id=session_id,
-            use_context=use_context
+            use_context=use_context,
+            meta_filter={"search_id": search_id},
         )
         return {"output": output, "status": 200, "success": True}
 

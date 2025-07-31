@@ -14,7 +14,7 @@ PROMPT_INSTRUCTIONS = """
 """
 
 SEARCH_KEYWORD_PROPMT = """
-1. Generate focused search keywords from a user's natural-language query.
+1. Generate focused search keywords from a user's natural-language query and chat history.
 2. return a JSON with an array of keywords
 3. include minimum of 3 and maximum of 5 elements in the array
 

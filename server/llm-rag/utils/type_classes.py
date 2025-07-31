@@ -8,6 +8,7 @@ class ContextMeta(BaseModel):
     icon: str | None = None
     title: str | None = None
     description: str | None = None
+    search_id: str | None = None
 
 
 class ContextData(BaseModel):

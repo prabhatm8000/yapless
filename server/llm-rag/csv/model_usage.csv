@@ -1,8 +1,6 @@
 model_name,date,used_requests
-gemma-3-27b-it,2025-07-30,8
-gemini-2.5-flash-lite,2025-07-30,0
-gemini-2.5-flash,2025-07-30,0
-gemini-2.0-flash-lite,2025-07-30,0
-gemini-2.0-flash,2025-07-30,0
-gemini-2.5-pro,2025-07-30,0
-models/gemma-3-27b-it,2025-07-30,1
+gemini-2.5-flash-lite,2025-07-31,31
+gemini-2.5-flash,2025-07-31,0
+gemini-2.0-flash-lite,2025-07-31,0
+gemini-2.0-flash,2025-07-31,0
+gemini-2.5-pro,2025-07-31,0

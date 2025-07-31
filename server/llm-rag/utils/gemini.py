@@ -26,12 +26,15 @@ User Query:
     return prompt
 
 
-def build_keyword_promt(user_query: str):
+def build_keyword_promt(user_query: str, chat_history: List[Dict[str, Any]]):
     prompt = f"""
 You are a helpful assistant. Follow the instructions to answer the user's question.
 
 Instructions:
 {SEARCH_KEYWORD_PROPMT}
+
+chat History:
+{chat_history}
 
 User Query:
 {user_query}
