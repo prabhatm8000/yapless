@@ -55,15 +55,18 @@ const EventRenderer = ({
             comp = <div></div>;
     }
     return (
-        <div className="flex flex-col justify-center gap-2">
-            <h6 className="text-muted-foreground">
-                <LoadingBubble
-                    className="mr-4"
-                    showAnimation={event.status === "PENDING" && showLoading}
-                />
-                {event.message}
-            </h6>
-            <div>{comp}</div>
+        <div className="flex gap-2">
+            <LoadingBubble
+                className="m-2"
+                showAnimation={event.status === "PENDING" && showLoading}
+                colorClass={
+                    event.status === "ERROR" ? "bg-red-500" : "bg-green-500"
+                }
+            />
+            <div className="flex flex-col gap-2">
+                <h6 className="text-muted-foreground">{event.message}</h6>
+                <div>{comp}</div>
+            </div>
         </div>
     );
 };

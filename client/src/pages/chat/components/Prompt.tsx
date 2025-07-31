@@ -26,6 +26,7 @@ import { useDispatch } from "react-redux";
 import { useSearchParams } from "react-router";
 
 type ModeType = "YAPLESS" | "SARCASTIC" | "DETAILED" | "AUTO";
+type SearchModesType = "AUTO" | "REDDIT" | "WIKIPEDIA" | null;
 
 const ModeDropDown = ({
     modeSelector,
@@ -33,7 +34,7 @@ const ModeDropDown = ({
     disabled,
 }: {
     modeSelector: ModeType;
-    setModeSelector: (m: "YAPLESS" | "SARCASTIC" | "DETAILED" | "AUTO") => void;
+    setModeSelector: (m: ModeType) => void;
     disabled?: boolean;
 }) => {
     const options = ["AUTO", "SARCASTIC", "DETAILED", "YAPLESS"];
@@ -69,26 +70,49 @@ const ModeDropDown = ({
     );
 };
 
-const SearchButton = ({
-    value,
-    toggle,
+const SearchModeDropDown = ({
+    searchModeSelector,
+    setSearchModeSelector,
     disabled,
 }: {
-    value: boolean;
-    toggle: () => void;
+    searchModeSelector: SearchModesType;
+    setSearchModeSelector: (m: SearchModesType) => void;
     disabled?: boolean;
 }) => {
+    const options = ["NONE", "AUTO", "REDDIT", "WIKIPEDIA"];
     return (
-        <Button
-            disabled={disabled}
-            size={"sm"}
-            onClick={toggle}
-            variant={"outline"}
-            className={`${value ? "opacity-100" : "opacity-50"}`}
-        >
-            <Search />
-            Search
-        </Button>
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button
+                    disabled={disabled}
+                    variant="outline"
+                    size={"sm"}
+                    className="capitalize"
+                >
+                    <Search />
+                    {searchModeSelector}
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-28">
+                <DropdownMenuLabel>Search</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {options.map((option) => (
+                    <DropdownMenuCheckboxItem
+                        key={option}
+                        checked={searchModeSelector === option}
+                        onCheckedChange={() =>
+                            option === "NONE"
+                                ? setSearchModeSelector(null)
+                                : setSearchModeSelector(
+                                      option as SearchModesType
+                                  )
+                        }
+                    >
+                        {option}
+                    </DropdownMenuCheckboxItem>
+                ))}
+            </DropdownMenuContent>
+        </DropdownMenu>
     );
 };
 
@@ -96,7 +120,8 @@ const Prompt = () => {
     const [modeSelector, setModeSelector] = useState<ModeType>("AUTO");
     const [loading, setLoading] = useState<boolean>(false);
     const [query, setQuery] = useState<string>("");
-    const [search, setSearch] = useState<boolean>(false);
+    const [searchModeSelector, setSearchModeSelector] =
+        useState<SearchModesType>(null);
 
     const propmtInputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -146,7 +171,7 @@ const Prompt = () => {
     const sendPropmt = async (payload: {
         q: string;
         mode: ModeType;
-        search: boolean;
+        search_mode: SearchModesType;
     }) => {
         setLoading(true);
         // mock or dummy history chat insertion, till the response comes
@@ -215,7 +240,7 @@ const Prompt = () => {
                 sendPropmt({
                     q: query.trim(),
                     mode: modeSelector,
-                    search,
+                    search_mode: searchModeSelector,
                 });
             }
         };
@@ -224,7 +249,14 @@ const Prompt = () => {
         return () => {
             document.removeEventListener("keydown", handleKeyDown);
         };
-    }, [modeSelector, search, propmtInputRef, query, dispatch, loading]);
+    }, [
+        modeSelector,
+        searchModeSelector,
+        propmtInputRef,
+        query,
+        dispatch,
+        loading,
+    ]);
 
     return (
         <Card className="py-4">
@@ -249,9 +281,9 @@ const Prompt = () => {
                             modeSelector={modeSelector}
                             disabled={loading}
                         />
-                        <SearchButton
-                            value={search}
-                            toggle={() => setSearch((p) => !p)}
+                        <SearchModeDropDown
+                            searchModeSelector={searchModeSelector}
+                            setSearchModeSelector={setSearchModeSelector}
                             disabled={loading}
                         />
                     </div>
@@ -260,7 +292,7 @@ const Prompt = () => {
                             sendPropmt({
                                 q: query.trim(),
                                 mode: modeSelector,
-                                search,
+                                search_mode: searchModeSelector,
                             })
                         }
                         disabled={loading}
