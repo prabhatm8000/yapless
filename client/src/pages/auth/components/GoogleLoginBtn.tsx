@@ -35,7 +35,7 @@ const GoogleLoginBtn = () => {
                 onClick={handleCtkBtn}
                 disabled={user?.loading}
                 type="button"
-                className="w-full mt-2 px-4 flex items-center justify-center gap-1"
+                className="w-full px-4 flex items-center justify-center gap-2"
             >
                 <IoLogoGoogle />
                 <span>Login with Google</span>

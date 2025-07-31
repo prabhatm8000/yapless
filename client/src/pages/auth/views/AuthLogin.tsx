@@ -1,3 +1,4 @@
+import Logo from "@/components/Logo";
 import {
     CardContent,
     CardFooter,
@@ -10,12 +11,18 @@ const AuthLogin = () => {
     return (
         <>
             <CardHeader>
-                <CardTitle>
-                    <h1 className="text-4xl text-center">Login</h1>
+                <CardTitle className="flex items-center gap-2">
+                    <Logo />
+                    <h1 className="text-2xl">Yapless</h1>
                 </CardTitle>
             </CardHeader>
-            <CardContent className="px-4"></CardContent>
-            <CardFooter className="flex-col gap-1 px-4">
+            <CardContent className="px-4">
+                <img
+                    src="/login-thumbnail.jpg"
+                    className="object-cover rounded-lg w-full h-48"
+                />
+            </CardContent>
+            <CardFooter className="px-4">
                 <GoogleLoginBtn />
             </CardFooter>
         </>

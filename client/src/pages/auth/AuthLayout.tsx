@@ -11,7 +11,7 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
 
     return (
         <div className="h-dvh overflow-hidden relative">
-            <div className="fixed top-0 left-0 m-4 z-20">
+            <div className="fixed top-0 left-0 m-6 z-20">
                 <Link to="/" className="w-fit">
                     <Logo />
                 </Link>
@@ -23,7 +23,7 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
                         <LoadingCircle className="size-5 absolute translate-x-[-50%] translate-y-[-50%] top-1/2 left-1/2" />
                     </div>
                 )}
-                <Card className="max-w-82 lg:max-w-96 w-full bg-background/20 backdrop-blur-[1px] gap-4 py-4 transform slide-in-from-bottom-16 transition-transform duration-300">
+                <Card className="max-w-82 lg:max-w-96 w-full rounded-lg bg-background/20 backdrop-blur-[1px] gap-4 py-4 transform slide-in-from-bottom-16 transition-transform duration-300">
                     {children}
                 </Card>
             </div>
