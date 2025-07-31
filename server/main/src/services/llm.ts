@@ -105,10 +105,26 @@ const messages = async (
     }
 };
 
+const deleteSession = async (session_id: string): Promise<boolean> => {
+    try {
+        const response = await axios.delete(
+            `${envvars.LLM_SERVICE_URL}/session?session_id=${session_id}`
+        );
+        const result = response.data as { success: boolean };
+        return result.success || false;
+    } catch (error: any) {
+        logger(`[Service: LLM] Error deleting session: ${error.data}`, {
+            level: "ERROR",
+        });
+        return false;
+    }
+};
+
 const llmService = {
     getSearchKeywords,
     provideContext,
     chat,
     messages,
+    deleteSession,
 };
 export default llmService;

@@ -1,11 +1,9 @@
 import Logo from "@/components/Logo";
 import TitleText from "@/components/TitleText";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import LoadingCircle from "@/components/ui/LoadingCircle";
 import { Separator } from "@/components/ui/separator";
 import { clearStateExceptChatHistory } from "@/redux/reducers/chatHistory";
 import type { AppDispatch } from "@/redux/store";
-import { getChats } from "@/redux/thunks/chatThunk";
 import { Plus } from "lucide-react";
 import { useEffect, useState, type JSX } from "react";
 import { IoIosClose, IoIosSettings } from "react-icons/io";
@@ -13,11 +11,8 @@ import { TbMenu } from "react-icons/tb";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useSearchParams } from "react-router";
 import { Button } from "../../../components/ui/button";
-import type {
-    IChat,
-    IChatState,
-    IUserState,
-} from "../../../redux/reducers/types";
+import type { IUserState } from "../../../redux/reducers/types";
+import ChatListRenderer from "./ChatListRenderer";
 
 // #region SideBar
 const SideBar = ({
@@ -64,17 +59,13 @@ const tabs: { title: string; value: SideBarTabType; icon: JSX.Element }[] = [
     { title: "Settings", value: "settings", icon: <IoIosSettings /> },
 ];
 const SideBarBody = ({ setShowSideBar }: { setShowSideBar: () => void }) => {
-    const chatState: IChatState = useSelector((state: any) => state.chat);
     const dispatch = useDispatch<AppDispatch>();
-    const [fetchMore, setFetchMore] = useState<boolean>(true);
 
     const [searchParams, setSearchParams] = useSearchParams();
     const [currentTab, setCurrentTab] = useState<SideBarTabType>(
         searchParams.get("tab") as SideBarTabType
     );
-    const [currentChat, setCurrentChat] = useState<string | null>(
-        searchParams.get("sessionId")
-    );
+
     const handleTabChange = (tab: SideBarTabType) => {
         setSearchParams((prev) => {
             prev.set("tab", tab);
@@ -93,49 +84,15 @@ const SideBarBody = ({ setShowSideBar }: { setShowSideBar: () => void }) => {
         dispatch(clearStateExceptChatHistory()); // clear othere states like, hasMore, loading...
     };
 
-    const handleChatClick = (ch: IChat) => {
-        if (ch.sessionId === currentChat) return;
-        setSearchParams((prev) => {
-            prev.set("tab", "chat");
-            prev.set("sessionId", ch.sessionId);
-            return prev;
-        });
-        setShowSideBar();
-        dispatch(clearStateExceptChatHistory()); // clear othere states like, hasMore, loading...
-    };
-
     // seting tab
     useEffect(() => {
         let tab = (searchParams.get("tab") as SideBarTabType) || "links";
         setCurrentTab(tab);
     }, [searchParams]);
 
-    useEffect(() => {
-        let sessionId = searchParams.get("sessionId");
-        setCurrentChat(sessionId);
-    });
-
-    // chats
-    useEffect(() => {
-        if (!fetchMore || chatState.loading || !chatState.hasMore) return;
-        setFetchMore(false); // prevent infinite loop
-        dispatch(
-            getChats({
-                skip: chatState.chats.length,
-                limit: 20,
-            })
-        );
-    }, [
-        fetchMore,
-        chatState.chats.length,
-        chatState.hasMore,
-        chatState.loading,
-        dispatch,
-    ]);
-
     return (
         <div className="flex flex-col gap-6 px-1">
-            <div className="flex flex-col text-muted-foreground font-semibold text-sm">
+            <div className="flex flex-col font-semibold text-sm">
                 <Button
                     className={`relative flex items-center justify-start gap-1 px-0 py-1.5 h-fit`}
                     variant={"ghost"}
@@ -163,37 +120,7 @@ const SideBarBody = ({ setShowSideBar }: { setShowSideBar: () => void }) => {
                 <span className="text-foreground font-semibold text-sm px-2">
                     Chats
                 </span>
-                <div
-                    className="flex flex-col max-h-[calc(100vh-280px)] overflow-y-auto"
-                    style={{
-                        scrollbarWidth: "none",
-                    }}
-                >
-                    {chatState.chats.map((ch, index) => (
-                        <Button
-                            key={index}
-                            onClick={() => handleChatClick(ch)}
-                            variant="ghost"
-                            className={`relative flex items-center justify-start gap-1 px-2 py-1.5 h-fit ${
-                                currentChat === ch.sessionId
-                                    ? "bg-muted-foreground/10 text-foreground"
-                                    : ""
-                            }`}
-                        >
-                            <span className="truncate">{ch.title}</span>
-                        </Button>
-                    ))}
-                    {chatState.loading && <LoadingCircle />}
-                    {chatState.hasMore && (
-                        <Button
-                            size={"sm"}
-                            variant={"ghost"}
-                            onClick={() => setFetchMore(true)}
-                        >
-                            More
-                        </Button>
-                    )}
-                </div>
+                <ChatListRenderer setShowSideBar={setShowSideBar} />
             </div>
         </div>
     );

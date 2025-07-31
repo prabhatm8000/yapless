@@ -7,7 +7,7 @@ const handleAndShowToast = (jsonPayload: any) => {
     const title = message?.title || message;
     const description =
         message?.description ||
-        new Date().toLocaleString().split(",").join(" ·");
+        new Date().toLocaleString().split(",").join(" •");
     const duration = message?.toastDuration;
 
     if (jsonPayload.success) {

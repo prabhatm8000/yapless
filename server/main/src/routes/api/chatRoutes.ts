@@ -13,6 +13,9 @@ chatsRouter
     .post(chatControllers.startChat)
     .get(chatControllers.getChats);
 
-chatsRouter.route("/:sessionId").get(chatControllers.getChatBySessionId);
+chatsRouter
+    .route("/:sessionId")
+    .get(chatControllers.getChatBySessionId)
+    .delete(chatControllers.deleteSession);
 
 export default chatsRouter;

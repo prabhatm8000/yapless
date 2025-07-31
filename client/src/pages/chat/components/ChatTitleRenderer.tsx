@@ -15,6 +15,10 @@ const ChatTitleRenderer = ({ sessionId }: { sessionId?: string | null }) => {
     const [title, setTitle] = useState<string>();
 
     useEffect(() => {
+        setTitle(undefined);
+    }, [sessionId]);
+
+    useEffect(() => {
         const fetchTheTitle = async () => {
             if (sessionId) {
                 let chat = chatState.chats.find(
@@ -31,8 +35,9 @@ const ChatTitleRenderer = ({ sessionId }: { sessionId?: string | null }) => {
             }
         };
 
-        fetchTheTitle();
-    }, [sessionId, chatState.chats, dispatch]);
+        if (!title && !chatState.loading) fetchTheTitle();
+    }, [title, chatState.chats, chatState.loading, dispatch]);
+
     return (
         <div className="relative">
             {/* Top fade effect */}

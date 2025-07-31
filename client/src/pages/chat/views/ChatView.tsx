@@ -22,17 +22,18 @@ const ChatView = () => {
     const [sessionId, setSessionId] = useState<string | null>(
         searchParams.get("sessionId")
     );
-    useEffect(() => {
-        const sId = searchParams.get("sessionId");
-        if (sId === sessionId) return;
-        setFetchMore(true);
-        setSessionId(sId);
-    }, [searchParams.get("sessionId"), sessionId]);
 
     const dispatch = useDispatch<AppDispatch>();
 
     const len =
         (sessionId ? chatHistoryState.chatHistory[sessionId] : [])?.length || 0;
+
+    useEffect(() => {
+        const sId = searchParams.get("sessionId");
+        if (len === 0) setFetchMore(true);
+        setSessionId(sId);
+    }, [searchParams.get("sessionId"), len]);
+
     useEffect(() => {
         if (
             !sessionId ||
@@ -48,7 +49,7 @@ const ChatView = () => {
                 skip: len,
             })
         ).then(() => {
-            if (len === 0) handleScrollToBottom("instant"); // initial scroll
+            if (len === 0) handleScrollToBottom("instant"); // initial scroll, initially len will 0,
         });
     }, [
         sessionId,

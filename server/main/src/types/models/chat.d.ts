@@ -1,5 +1,5 @@
 import type mongoose from "mongoose";
-import type { Document } from "mongoose";
+import type { DeleteResult, Document } from "mongoose";
 
 export interface IChatProps {
     userId: string | mongoose.Types.ObjectId;
@@ -24,4 +24,9 @@ export interface IChatService {
         userId: IChatProps["userId"],
         sessionId: IChatProps["sessionId"]
     ) => Promise<IChat | null>;
+    deleteChatBySessionId: (
+        userId: IChatProps["userId"],
+        sessionId: IChatProps["sessionId"],
+        mongooseClientSession: mongoose.ClientSession
+    ) => Promise<DeleteResult>;
 }

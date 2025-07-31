@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request
-from model.chat_history import get_recent_chat_messages
+from model.chat_history import clear_session, get_recent_chat_messages
 from model.gemini import ask_gemini, get_search_keywords
 from utils.chroma_ops import add_to_chroma
 from utils.envvar import PORT
@@ -81,6 +81,26 @@ async def chat(
 
     except Exception as e:
         print(e)
+        return {"error": str(e), "status": 500, "success": False}
+
+
+@app.delete('/session')
+async def delete_session(request: Request):
+    try:
+        query = dict(request.query_params)
+        session_id = query.get("session_id", None)
+        if not session_id:
+            return {"error": "Session ID is required", "status": 400, "success": False}
+
+        clear_session(session_id=session_id)
+        return {
+            "output": {
+                "session_id": session_id
+            },
+            "status": 200,
+            "success": True
+        }
+    except Exception as e:
         return {"error": str(e), "status": 500, "success": False}
 
 

@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import ChatHistory from "../models/chatHistory";
 import type {
     IChatHistory,
@@ -12,7 +13,7 @@ const addChatHistory = async (
 };
 
 const getChatHistoryBySessionId = async (
-    userId: string,
+    userId: string | mongoose.Types.ObjectId,
     sessionId: string,
     skip: number = 0,
     limit: number = 5
@@ -20,7 +21,7 @@ const getChatHistoryBySessionId = async (
     return await ChatHistory.aggregate([
         {
             $match: {
-                userId,
+                userId: new mongoose.Types.ObjectId(userId),
                 sessionId,
             },
         },
@@ -38,9 +39,26 @@ const getChatHistoryBySessionId = async (
     ]);
 };
 
+const deleteChatHistoryBySessionId = async (
+    userId: string | mongoose.Types.ObjectId,
+    sessionId: string,
+    mongooseClientSession: mongoose.ClientSession
+) => {
+    return await ChatHistory.deleteMany(
+        {
+            userId: new mongoose.Types.ObjectId(userId),
+            sessionId,
+        },
+        {
+            session: mongooseClientSession,
+        }
+    );
+};
+
 const chatHistoryService: IChatHistoryService = {
     addChatHistory: addChatHistory,
     getChatHistoryBySessionId: getChatHistoryBySessionId,
+    deleteChatHistoryBySessionId: deleteChatHistoryBySessionId,
 };
 
 export default chatHistoryService;

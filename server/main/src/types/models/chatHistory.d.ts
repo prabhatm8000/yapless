@@ -1,4 +1,5 @@
-import type { Document } from "mongoose";
+import type { DeleteResult, Document } from "mongoose";
+import mongoose from "mongoose";
 import type { SiteMetadataType } from "../services/websearchTypes";
 
 export interface IChatHistoryProps {
@@ -28,9 +29,21 @@ export interface IChatHistoryService {
      * @returns
      */
     getChatHistoryBySessionId: (
-        userId,
+        userId: string | mongoose.Types.ObjectId,
         sessionId: string,
         skip: number = 0,
         limit: number = 5
     ) => Promise<IChatHistory[]>;
+
+    /**
+     * Delete chat history by sessionId, for a given user
+     * @param userId
+     * @param sessionId
+     * @returns
+     */
+    deleteChatHistoryBySessionId: (
+        userId: string | mongoose.Types.ObjectId,
+        sessionId: string,
+        mongooseClientSession: mongoose.ClientSession
+    ) => Promise<DeleteResult>;
 }

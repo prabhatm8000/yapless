@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import mongoose from "mongoose";
 import { events } from "../constants/chatEvents";
 import asyncWrapper from "../lib/asyncWrapper";
 import { APIResponseError } from "../lib/error/apiError";
@@ -207,27 +208,55 @@ const getChatHistory = asyncWrapper(async (req: Request, res: Response) => {
 
     res.status(200).json({
         success: true,
-        messages: "",
         data: { messages: ch, sessionId: sessionId },
     });
 });
 
-// const deleteChat = asyncWrapper(async (req: Request, res: Response) => {
-//     const sessionId = req.query.sessionId as string;
-//     if (!sessionId) {
-//         throw new APIResponseError("Missing sessionId", 400, false);
-//     }
+const deleteSession = asyncWrapper(async (req: Request, res: Response) => {
+    const userId = req.user!._id!;
+    const sessionId = req.params.sessionId as string;
+    if (!sessionId) {
+        throw new APIResponseError("Missing sessionId", 400, false);
+    }
 
-//     res.status(200).json({
-//         success: true,
-//         data: "",
-//     });
-// });
+    const mongooseClientSession = await mongoose.startSession();
+    mongooseClientSession.startTransaction();
+    try {
+        const chat = await chatService.deleteChatBySessionId(
+            userId,
+            sessionId,
+            mongooseClientSession
+        );
+        if (chat.deletedCount === 0)
+            throw new APIResponseError("Chat not found", 404, false);
+        await chatHistoryService.deleteChatHistoryBySessionId(
+            userId,
+            sessionId,
+            mongooseClientSession
+        );
+        const sessionDeleted = await llmService.deleteSession(sessionId);
+        if (!sessionDeleted)
+            throw new APIResponseError("Session not found", 404, false);
+        await mongooseClientSession.commitTransaction();
+    } catch (error) {
+        await mongooseClientSession.abortTransaction();
+        throw error;
+    }
+
+    res.status(200).json({
+        success: true,
+        data: {
+            sessionId,
+        },
+        message: "Session deleted successfully",
+    });
+});
 
 const chatControllers = {
     startChat,
     getChats,
     getChatBySessionId,
     getChatHistory,
+    deleteSession,
 };
 export default chatControllers;

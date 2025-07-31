@@ -90,6 +90,7 @@ const AppRouter = () => {
                 duration={5 * 1000}
                 swipeDirections={["bottom", "left", "right", "top"]}
                 closeButton
+                position="top-right"
             />
         </BrowserRouter>
     );

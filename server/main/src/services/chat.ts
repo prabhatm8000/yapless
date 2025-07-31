@@ -1,3 +1,4 @@
+import type mongoose from "mongoose";
 import Chat from "../models/chat";
 import type { IChatProps, IChatService } from "../types/models/chat";
 
@@ -39,10 +40,25 @@ const getChatBySessionId = async (
     return chat;
 };
 
+const deleteChatBySessionId = async (
+    userId: IChatProps["userId"],
+    sessionId: IChatProps["sessionId"],
+    mongooseClientSession: mongoose.ClientSession
+) => {
+    const chat = await Chat.deleteOne(
+        { userId, sessionId },
+        {
+            session: mongooseClientSession,
+        }
+    );
+    return chat;
+};
+
 const chatService: IChatService = {
     createChat: createChat,
     getChats: getChats,
     getChatBySessionId: getChatBySessionId,
+    deleteChatBySessionId: deleteChatBySessionId,
 };
 
 export default chatService;

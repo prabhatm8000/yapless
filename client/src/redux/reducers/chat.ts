@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getChats } from "../thunks/chatThunk";
+import { deleteChatBySessionId, getChats } from "../thunks/chatThunk";
 import type { ApiResponseType, IChat, IChatState } from "./types";
 
 const initialState: IChatState = {
@@ -46,6 +46,27 @@ export const chatSlice = createSlice({
             state.loading = false;
             state.error = action.error.message || null;
             state.message = (action.payload as ApiResponseType).message;
+        });
+
+        // deleteChatBySessionId
+        builder.addCase(deleteChatBySessionId.fulfilled, (state, action) => {
+            const data = (action.payload as ApiResponseType).data as {
+                sessionId: string;
+            };
+            state.chats = state.chats.filter(
+                (c) => c.sessionId !== data.sessionId
+            );
+            state.loading = false;
+        });
+        builder.addCase(deleteChatBySessionId.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.error.message || null;
+            state.message = (action.payload as ApiResponseType).message;
+        });
+        builder.addCase(deleteChatBySessionId.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+            state.message = null;
         });
     },
 });

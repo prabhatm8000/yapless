@@ -51,3 +51,15 @@ export const getChatBySessionId = createAsyncThunk(
         }
     }
 );
+
+export const deleteChatBySessionId = createAsyncThunk(
+    "chat/deleteBySessionId",
+    async (sessionId: string, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const res = await axiosInstance.delete(`/chat/${sessionId}`);
+            return fulfillWithValue(res.data as ApiResponseType);
+        } catch (error: any) {
+            return rejectWithValue(error.response.data as ApiResponseType);
+        }
+    }
+);

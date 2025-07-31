@@ -38,3 +38,11 @@ def get_recent_chat_messages(
         }
         for msg in paginated
     ]
+
+
+def clear_session(session_id: str):
+    history = TimestampedSQLChatMessageHistory(
+        session_id=session_id,
+        connection=CHAT_DB_PATH
+    )
+    history.clear()
