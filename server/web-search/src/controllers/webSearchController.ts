@@ -43,6 +43,11 @@ const scrape = asyncWrapper(async (req: Request, res: Response) => {
 
     const scrapResult: (ScrapResult | null)[] = await Promise.all(
         searchResult.results.map(async (result) => {
+            const item = {
+                ...result,
+            };
+            if (!item.title) item.title = searchResult.title;
+            if (!item.description) item.description = searchResult.description;
             const data = await scraper(result);
             return data;
         })

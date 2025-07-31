@@ -1,4 +1,5 @@
 import axios from "axios";
+import { v7 as uuidv7 } from "uuid";
 import {
     MAX_MONTHLY_QUERIES_SERP_API,
     MAX_MONTHLY_QUERIES_TAVILY_API,
@@ -144,6 +145,8 @@ const search = async (query: string, forceFasterSearch = false) => {
         }
     }
 
+    const search_id = uuidv7();
+
     const data = {
         ...sr,
         title: cleanText(sr?.title),
@@ -152,6 +155,7 @@ const search = async (query: string, forceFasterSearch = false) => {
             ...r,
             title: cleanText(r?.title),
             description: cleanText(r?.description),
+            search_id,
         })),
     };
 

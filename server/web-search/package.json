@@ -21,11 +21,13 @@
   "dependencies": {
     "@mozilla/readability": "^0.6.0",
     "@prisma/client": "^6.12.0",
-    "axios": "^1.10.0",
+    "axios": "^1.11.0",
+    "cheerio": "^1.1.2",
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
     "jsdom": "^26.1.0",
-    "puppeteer": "^24.13.0",
-    "sqlite3": "^5.1.7"
+    "puppeteer": "^24.15.0",
+    "sqlite3": "^5.1.7",
+    "uuid": "^11.1.0"
   }
 }

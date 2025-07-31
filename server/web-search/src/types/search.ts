@@ -2,6 +2,7 @@ export type SearchResultItemType = {
     title?: string;
     description?: string;
     url?: string;
+    search_id: string;
 };
 
 export type SearchResultType = {

@@ -1,4 +1,5 @@
 export interface SiteMetadataType {
+    search_id: string;
     url: string;
     icon?: string | null;
     title?: string | null;
@@ -10,5 +11,5 @@ export interface ScrapResult {
     title?: string | null;
     text?: string | null;
     html?: string | null;
-    source: "axios" | "puppeteer";
+    source: string;
 }
