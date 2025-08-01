@@ -43,7 +43,7 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
 
             {/* Concentric Squares - Light Pattern */}
             <div
-                className="absolute inset-0 -z-10 pointer-events-none"
+                className="absolute inset-0 -z-10 pointer-events-none "
                 style={{
                     backgroundImage: `
         repeating-linear-gradient(0deg, transparent, transparent 5px, color-mix(in oklab, var(--muted-foreground) 10%, transparent) 5px, color-mix(in oklab, var(--muted-foreground) 10%, transparent) 6px, transparent 6px, transparent 15px),

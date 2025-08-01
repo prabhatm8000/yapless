@@ -5,6 +5,7 @@ import { toast, Toaster } from "sonner";
 import SuspenseWrapper from "./components/SuspenseWrapper";
 import useTheme from "./hooks/useTheme";
 import ErrorPage, { PageDataContants } from "./pages/ErrorPage";
+import LandingPage from "./pages/landing/LandingPage";
 import LoadingPage from "./pages/LoadingPage";
 import type { IUserState } from "./redux/reducers/types";
 import type { AppDispatch } from "./redux/store";
@@ -12,6 +13,7 @@ import { verifyUser } from "./redux/thunks/userThunk";
 
 const AuthRoutes = lazy(() => import("./pages/auth/AuthRoutes"));
 const ChatRoutes = lazy(() => import("./pages/chat/ChatRoutes"));
+const LegalRoutes = lazy(() => import("./pages/legal/LegalRoutes"));
 
 const PrivateRoutes = ({ user }: { user: IUserState }) => {
     const navigate = useNavigate();
@@ -61,7 +63,7 @@ const AppRouter = () => {
                     path="/"
                     element={
                         <SuspenseWrapper>
-                            <div>Home</div>
+                            <LandingPage />
                         </SuspenseWrapper>
                     }
                 />
@@ -70,6 +72,14 @@ const AppRouter = () => {
                     element={
                         <SuspenseWrapper>
                             <AuthRoutes />
+                        </SuspenseWrapper>
+                    }
+                />
+                <Route
+                    path="/legal/*"
+                    element={
+                        <SuspenseWrapper>
+                            <LegalRoutes />
                         </SuspenseWrapper>
                     }
                 />

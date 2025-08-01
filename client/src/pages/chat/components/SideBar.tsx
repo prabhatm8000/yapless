@@ -45,7 +45,7 @@ export const SideBarHeader = () => {
             <Link to={"/"}>
                 <TitleText className="text-xl flex gap-2 justify-start items-center">
                     <Logo />
-                    <span>Yapless</span>
+                    <span className="font-bold">yapless</span>
                 </TitleText>
             </Link>
         </div>
