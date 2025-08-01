@@ -12,6 +12,7 @@ const MainScreen = () => {
                     because you didn&apos;t ask for a TED talk.
                 </h3>
             </div>
+
             <div className="flex justify-center mt-5">
                 <Link to="/auth/login">
                     <Button>Get Started!</Button>
