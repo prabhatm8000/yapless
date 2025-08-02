@@ -23,7 +23,7 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
                         <LoadingCircle className="size-5 absolute translate-x-[-50%] translate-y-[-50%] top-1/2 left-1/2" />
                     </div>
                 )}
-                <Card className="max-w-82 lg:max-w-96 w-full rounded-lg bg-background/20 backdrop-blur-[1px] gap-4 py-4 transform slide-in-from-bottom-16 transition-transform duration-300">
+                <Card className="py-4 gap-4 bg-transparent backdrop-blur-[1.5px] border-none shadow-2xl">
                     {children}
                 </Card>
             </div>
@@ -46,14 +46,13 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
                 className="absolute inset-0 -z-10 pointer-events-none "
                 style={{
                     backgroundImage: `
-        repeating-linear-gradient(0deg, transparent, transparent 5px, color-mix(in oklab, var(--muted-foreground) 10%, transparent) 5px, color-mix(in oklab, var(--muted-foreground) 10%, transparent) 6px, transparent 6px, transparent 15px),
-        repeating-linear-gradient(90deg, transparent, transparent 5px, color-mix(in oklab, var(--muted-foreground) 10%, transparent) 5px, color-mix(in oklab, var(--muted-foreground) 10%, transparent) 6px, transparent 6px, transparent 15px),
-        repeating-linear-gradient(0deg, transparent, transparent 10px, color-mix(in oklab, var(--muted-foreground) 5%, transparent) 10px, color-mix(in oklab, var(--muted-foreground) 5%, transparent) 11px, transparent 11px, transparent 30px),
-        repeating-linear-gradient(90deg, transparent, transparent 10px, color-mix(in oklab, var(--muted-foreground) 5%, transparent) 10px, color-mix(in oklab, var(--muted-foreground) 5%, transparent) 11px, transparent 11px, transparent 30px)
+        repeating-linear-gradient(0deg, transparent, transparent 5px, color-mix(in oklab, var(--foreground) 10%, transparent) 5px, color-mix(in oklab, var(--foreground) 10%, transparent) 6px, transparent 6px, transparent 15px),
+        repeating-linear-gradient(90deg, transparent, transparent 5px, color-mix(in oklab, var(--foreground) 10%, transparent) 5px, color-mix(in oklab, var(--foreground) 10%, transparent) 6px, transparent 6px, transparent 15px),
+        repeating-linear-gradient(0deg, transparent, transparent 10px, color-mix(in oklab, var(--foreground) 5%, transparent) 10px, color-mix(in oklab, var(--foreground) 5%, transparent) 11px, transparent 11px, transparent 30px),
+        repeating-linear-gradient(90deg, transparent, transparent 10px, color-mix(in oklab, var(--foreground) 5%, transparent) 10px, color-mix(in oklab, var(--foreground) 5%, transparent) 11px, transparent 11px, transparent 30px)
       `,
                 }}
             />
-            {/* Your Content/Components */}
         </div>
     );
 };
