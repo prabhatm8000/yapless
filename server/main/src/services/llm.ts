@@ -69,12 +69,17 @@ const chat = async (
     use_context: boolean = false
 ): Promise<ChatResponseType | null> => {
     try {
-        const response = await axios.get(
-            `${envvars.LLM_SERVICE_URL}/chat?q=${q}&mode=${mode}${
-                session_id ? `&session_id=${session_id}` : ""
-            }${use_context ? `&use_context=${use_context}` : ""}${
-                search_id ? `&search_id=${search_id}` : ""
-            }`
+        const payload = {
+            q,
+            mode,
+            ...(session_id && { session_id }),
+            ...(search_id && { search_id }),
+            ...(use_context && { use_context }),
+        };
+
+        const response = await axios.post(
+            `${envvars.LLM_SERVICE_URL}/chat`,
+            payload
         );
         const result = response.data as ChatResponseType;
         return result;

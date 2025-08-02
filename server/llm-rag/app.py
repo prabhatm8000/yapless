@@ -56,20 +56,22 @@ async def context(
         return {"error": str(e), "status": 500, "success": False}
 
 
-@app.get("/chat")
+@app.post("/chat")
 async def chat(
     request: Request
 ):
     try:
-        query = dict(request.query_params)
-        user_query = query.get("q", None)
-        mode = query.get("mode", "AUTO")
-        use_context = query.get("use_context", False)
-        search_id = query.get("search_id", None)
+        jsonBody = await request.json()
+
+        user_query = jsonBody.get("q", None)
+        mode = jsonBody.get("mode", "AUTO")
+        use_context = jsonBody.get("use_context", False)
+
+        search_id = jsonBody.get("search_id", None)
         if not user_query:
             return {"error": "Query is empty", "status": 400, "success": False}
 
-        session_id = query.get("session_id", None)
+        session_id = jsonBody.get("session_id", None)
         output = ask_gemini(
             user_query=user_query,
             mode=mode,
