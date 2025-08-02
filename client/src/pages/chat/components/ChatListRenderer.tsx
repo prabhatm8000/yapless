@@ -98,32 +98,33 @@ const ChatListRenderer = ({
     ]);
     return (
         <div
-            className="flex flex-col max-h-[calc(100vh-280px)] overflow-y-auto overflow-x-hidden"
+            className="flex flex-col gap-1 max-h-[calc(100vh-280px)] max-w-[calc(15rem-8px)] overflow-y-auto overflow-x-hidden"
             style={{
                 scrollbarWidth: "none",
             }}
         >
             {chatState.chats.map((ch, index) => (
                 <div
-                    className="flex w-full items-center"
-                    onMouseEnter={(e) => {
-                        const btnElement = e.currentTarget
-                            .children[0] as HTMLElement;
-                        btnElement.classList.remove("w-full");
-                        btnElement.classList.add("w-48");
-                    }}
-                    onMouseLeave={(e) => {
-                        const btnElement = e.currentTarget
-                            .children[0] as HTMLElement;
-                        btnElement.classList.remove("w-48");
-                        btnElement.classList.add("w-full");
-                    }}
+                    key={index}
+                    className="grid grid-cols-[1fr_auto] gap-1 w-full h-8 items-center"
+                    // onMouseEnter={(e) => {
+                    //     const btnElement = e.currentTarget
+                    //         .children[0] as HTMLElement;
+                    //     btnElement.classList.remove("w-full");
+                    //     btnElement.classList.add("w-48");
+                    // }}
+                    // onMouseLeave={(e) => {
+                    //     const btnElement = e.currentTarget
+                    //         .children[0] as HTMLElement;
+                    //     btnElement.classList.remove("w-48");
+                    //     btnElement.classList.add("w-full");
+                    // }}
                 >
                     <Button
                         key={index}
                         onClick={() => handleChatClick(ch)}
                         variant="ghost"
-                        className={`flex justify-start px-1.5 py-0 w-full ${
+                        className={`flex justify-start px-1.5 py-0 h-8 ${
                             currentChat === ch.sessionId
                                 ? "bg-muted-foreground/10 text-foreground"
                                 : ""

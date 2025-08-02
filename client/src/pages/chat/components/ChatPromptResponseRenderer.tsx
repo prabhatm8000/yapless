@@ -1,16 +1,74 @@
 import Logo from "@/components/Logo";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import LoadingCircle from "@/components/ui/LoadingCircle";
 import { Separator } from "@/components/ui/separator";
 import { copyToClipboard, readAloud } from "@/lib/utils";
-import type { IChatHistoryState } from "@/redux/reducers/types";
-import "highlight.js/styles/github.css";
+import type { IChatHistory, IChatHistoryState } from "@/redux/reducers/types";
 import { Copy, Volume2 } from "lucide-react";
+import type { ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import { useSelector } from "react-redux";
 import rehypeHighlight from "rehype-highlight";
 import ChatMetadataRenderer from "./ChatMetadataRenderer";
 import EventRenderer from "./EventRenderer";
+
+const ItemRenderer = ({ ch }: { ch: IChatHistory }) => {
+    // Custom style classes (To override existing styles) are defined for this particular component in index.css
+
+    const handleCodeCopyBtn = (code: ReactNode) => {
+        (code as Array<string>).map((d) =>
+            typeof d === "string" ? console.log(d) : console.log("")
+        );
+    };
+    return (
+        <>
+            <ChatMetadataRenderer metadata={ch.metadata} />
+            <ReactMarkdown
+                rehypePlugins={[rehypeHighlight]}
+                components={{
+                    code({ node, className, children, ...props }) {
+                        return (
+                            <code className={``} {...props}>
+                                <Button
+                                    className="float-right px-1.5 py-0 h-6 rounded"
+                                    size={"sm"}
+                                    children={"Copy"}
+                                    onClick={() => handleCodeCopyBtn(children)}
+                                />
+                                {children}
+                            </code>
+                        );
+                    },
+                    pre({ children }) {
+                        return (
+                            <pre className="rounded-md px-2 py-1 overflow-x-auto">
+                                {children}
+                            </pre>
+                        );
+                    },
+                }}
+            >
+                {ch.response}
+            </ReactMarkdown>
+            {/* prompt options */}
+            <div className="flex items-center gap-2 mt-4">
+                <span
+                    className="cursor-pointer"
+                    onClick={() => copyToClipboard(ch.response)}
+                >
+                    <Copy size={16} />
+                </span>
+                <span
+                    className="cursor-pointer"
+                    onClick={() => readAloud(ch.response)}
+                >
+                    <Volume2 size={16} />
+                </span>
+            </div>
+        </>
+    );
+};
 
 const ChatPromptResponseRenderer = ({
     sessionId,
@@ -79,41 +137,7 @@ const ChatPromptResponseRenderer = ({
                                                 )}
                                             </>
                                         ) : (
-                                            <>
-                                                <ChatMetadataRenderer
-                                                    metadata={ch.metadata}
-                                                />
-                                                <ReactMarkdown
-                                                    rehypePlugins={[
-                                                        rehypeHighlight,
-                                                    ]}
-                                                >
-                                                    {ch.response}
-                                                </ReactMarkdown>
-                                                {/* prompt options */}
-                                                <div className="flex items-center gap-2 mt-4">
-                                                    <span
-                                                        className="cursor-pointer"
-                                                        onClick={() =>
-                                                            copyToClipboard(
-                                                                ch.response
-                                                            )
-                                                        }
-                                                    >
-                                                        <Copy size={16} />
-                                                    </span>
-                                                    <span
-                                                        className="cursor-pointer"
-                                                        onClick={() =>
-                                                            readAloud(
-                                                                ch.response
-                                                            )
-                                                        }
-                                                    >
-                                                        <Volume2 size={16} />
-                                                    </span>
-                                                </div>
-                                            </>
+                                            <ItemRenderer ch={ch} />
                                         )}
                                     </div>
                                 </div>

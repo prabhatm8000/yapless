@@ -6,7 +6,7 @@ import { clearStateExceptChatHistory } from "@/redux/reducers/chatHistory";
 import type { AppDispatch } from "@/redux/store";
 import { Plus } from "lucide-react";
 import { useEffect, useState, type JSX } from "react";
-import { IoIosClose, IoIosSettings } from "react-icons/io";
+import { IoIosClose } from "react-icons/io";
 import { TbMenu } from "react-icons/tb";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useSearchParams } from "react-router";
@@ -56,7 +56,7 @@ export const SideBarHeader = () => {
 // #region Body
 export type SideBarTabType = "profile" | "settings" | "chat";
 const tabs: { title: string; value: SideBarTabType; icon: JSX.Element }[] = [
-    { title: "Settings", value: "settings", icon: <IoIosSettings /> },
+    // { title: "Settings", value: "settings", icon: <IoIosSettings /> },
 ];
 const SideBarBody = ({ setShowSideBar }: { setShowSideBar: () => void }) => {
     const dispatch = useDispatch<AppDispatch>();
