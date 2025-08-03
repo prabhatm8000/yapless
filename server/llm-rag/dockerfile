@@ -1,10 +1,21 @@
-FROM python:3.11.0-alpine
+FROM python:3.11-bookworm
 
 WORKDIR /app
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+
+# Add required build tools and rust
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libssl-dev \
+    curl \
+    && curl https://sh.rustup.rs -sSf | sh -s -- -y \
+    && . "$HOME/.cargo/env"
+    
+RUN python -m pip install --upgrade pip
+RUN pip install --no-cache-dir --break-system-packages -r requirements.txt
+
 
 COPY . .
 
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "3002"]
+CMD ["python3", "app.py"]
