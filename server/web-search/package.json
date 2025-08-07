@@ -16,7 +16,8 @@
     "@types/node": "^24.0.13",
     "prisma": "^6.12.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "nodemon": "^3.0.3"
   },
   "dependencies": {
     "@mozilla/readability": "^0.6.0",
