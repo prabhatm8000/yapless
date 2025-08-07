@@ -1,4 +1,4 @@
-import express, { Express } from "express";
+import express, { Express, type Request, type Response } from "express";
 import webSearchController from "./controllers/webSearchController";
 import envvars from "./lib/envvars";
 import { apiErrorHandler } from "./lib/error/apiError";
@@ -17,7 +17,17 @@ app.use(function (req, res, next) {
     );
     next();
 });
-
+app.get("/", async (req: Request, res: Response) => {
+    res.status(200).json({
+        message: "Welcome to the API!",
+        success: true,
+        data: {
+            name: "API",
+            version: "1.0.0",
+            description: "API working fine.",
+        },
+    });
+});
 app.get("/websearch", webSearchController.webSearch);
 app.post("/scrape", webSearchController.scrape);
 app.use(apiErrorHandler);
