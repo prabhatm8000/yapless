@@ -4,8 +4,8 @@ import rateLimit from "express-rate-limit";
 export const authCookieConfig = {
     authCookieName: "auth-cookie",
     httpOnly: true,
-    secure: false,
-    sameSite: "strict" as "strict" | "lax" | "none",
+    secure: true,
+    sameSite: "none" as "strict" | "lax" | "none",
     maxAge: 3 * 24 * 60 * 60 * 1000, // 3 days
 };
 
