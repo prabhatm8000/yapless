@@ -8,8 +8,11 @@ from utils.type_classes import ContextData
 app = FastAPI()
 
 
+@app.head("/")
 @app.get("/")
-async def test():
+async def test(request: Request):
+    if request.method == "HEAD":
+        return {}
     return {
         "output": {
             "message": "Welcome to the API!",
