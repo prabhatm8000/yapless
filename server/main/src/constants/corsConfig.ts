@@ -1,7 +1,7 @@
 import cors from "cors";
 import envvars from "./envvars";
 
-const CLIENT_URL = envvars.CLIENT_URL;
+const CLIENT_URL = envvars.DEV_CLIENT_URL;
 const originWhitelist = [
     CLIENT_URL,
     "http://localhost:1905",
