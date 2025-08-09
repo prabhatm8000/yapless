@@ -2,6 +2,7 @@ import Logo from "@/components/Logo";
 import TitleText from "@/components/TitleText";
 import { Button } from "@/components/ui/button";
 import type { IUserState } from "@/redux/reducers/types";
+import { motion } from "framer-motion";
 import { useState } from "react";
 import { IoIosClose } from "react-icons/io";
 import { TbMenu } from "react-icons/tb";
@@ -27,10 +28,18 @@ const NavBar = () => {
         </>
     );
     return (
-        <nav
+        <motion.nav
             className={`fixed w-full top-0 p-6 z-50 ${
                 showNavItems ? "h-screen gap-6" : "h-auto"
             }`}
+            initial={{ opacity: 0 }}
+            animate={{
+                opacity: 1,
+            }}
+            transition={{
+                delay: 1,
+                duration: 1,
+            }}
         >
             <div className="max-w-7xl mx-auto flex flex-col gap-4 relative backdrop-blur-[1.5px] shadow-2xl rounded-2xl">
                 <div className={`flex gap-2 items-end justify-between p-4`}>
@@ -72,7 +81,7 @@ const NavBar = () => {
                     </div>
                 )}
             </div>
-        </nav>
+        </motion.nav>
     );
 };
 

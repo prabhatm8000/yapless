@@ -1,9 +1,14 @@
 import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 import { Link } from "react-router";
 
 const MainScreen = () => {
     return (
-        <div
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1 }}
             className="h-screen w-full relative flex flex-col justify-center"
             id="home"
         >
@@ -33,7 +38,7 @@ const MainScreen = () => {
                     backgroundImage: `radial-gradient(circle 1000px at 50% -50%, var(--chart-5), transparent)`,
                 }}
             />
-        </div>
+        </motion.div>
     );
 };
 
