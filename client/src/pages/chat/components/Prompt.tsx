@@ -210,17 +210,27 @@ const Prompt = () => {
 
         if (!reader) throw new Error("No reader");
 
+        let buffer = "";
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
-            const buffer = decoder.decode(value, { stream: true });
-            // parse SSE-style chunks
-            try {
-                const event = JSON.parse(buffer) as EventDataType;
-                dispatch(addResponseEvent(event));
-                handleEvents(event);
-            } catch (error: any) {
-                throw new Error(error);
+
+            buffer += decoder.decode(value, { stream: true });
+
+            let boundary;
+            while ((boundary = buffer.indexOf("\n")) >= 0) {
+                const jsonStr = buffer.slice(0, boundary).trim();
+                buffer = buffer.slice(boundary + 1);
+
+                if (jsonStr) {
+                    try {
+                        const event = JSON.parse(jsonStr);
+                        dispatch(addResponseEvent(event));
+                        handleEvents(event);
+                    } catch (err) {
+                        console.error("Invalid JSON chunk:", jsonStr);
+                    }
+                }
             }
         }
         setLoading(false);
